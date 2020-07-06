@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <item name="switch_broadcasting_id" type="id" />
+    <item name="switch_speaker_id" type="id" />
+    <item name="mute_local_speaker_id" type="id" />
+    <item name="male_magnetic" type="id" />
+    <item name="male_vocal" type="id" />
+    <item name="audioMixing" type="id" />
+    <item name="playeffect" type="id" />
+    <item name="ktv" type="id" />
+</resources>
