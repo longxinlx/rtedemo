@@ -2,10 +2,11 @@ package io.agora.openlive.voice.only.ui;
 
 import android.content.Intent;
 import android.graphics.PorterDuff;
-import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +21,10 @@ import android.widget.TextView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
 import io.agora.openlive.voice.only.R;
@@ -27,9 +32,9 @@ import io.agora.openlive.voice.only.model.AGEventHandler;
 import io.agora.openlive.voice.only.model.ConstantApp;
 import io.agora.rtc2.Constants;
 import io.agora.rtc2.IAudioEffectManager;
+import io.agora.rtc2.IAudioFrameObserver;
 import io.agora.rtc2.IRtcEngineEventHandler;
 import io.agora.rtc2.RtcEngine;
-import io.agora.rtc2.IAudioFrameObserver;
 
 public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IAudioFrameObserver{
 
@@ -41,6 +46,13 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
     private volatile boolean mAudioMixing = false;
     private volatile boolean mPlayEffect = false;
     private volatile boolean mKTV = false;
+    private volatile boolean mOnRecord = false;
+    private volatile boolean mOnMixed = false;
+    private volatile boolean mEar = false;
+    public static String SDCARD_DIR;
+    private RandomAccessFile randomAccessFileForOnRecord;
+    private RandomAccessFile randomAccessFileForOnMixed;
+    private boolean isRecording = true;
 
     private volatile int mAudioRouting = -1; // Default
 
@@ -48,6 +60,8 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_live_room);
+        createPcmFile(RECORD_FILE);
+        createPcmFile(ONMIXED_FILE);
     }
 
     @Override
@@ -211,6 +225,7 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
         super.onBackPressed();
 
         log.info("onBackPressed");
+        stopRecordDraft(LiveRoomActivity.RECORD_FILE);
         worker().getRtcEngine().registerAudioFrameObserver(null);
         quitCall();
     }
@@ -406,6 +421,51 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
         }
     }
 
+    public void  onRecordClicked (View view) {
+        android.util.Log.v("longxin","onRecordClicked");
+
+        Button iv = (Button) view;
+        mOnRecord = !mOnRecord;
+        if (mOnRecord) {
+            iv.setTextColor(getResources().getColor(R.color.agora_blue));
+
+            isRecording = true;
+        } else {
+            iv.setTextColor(getResources().getColor(R.color.dark_black));
+            isRecording = false;
+
+        }
+    }
+
+    public void  onMixedClicked (View view) {
+        android.util.Log.v("longxin","onMixedClicked");
+
+        Button iv = (Button) view;
+        mOnMixed = !mOnMixed;
+        if (mOnMixed) {
+            iv.setTextColor(getResources().getColor(R.color.agora_blue));
+
+            isRecording = true;
+        } else {
+            iv.setTextColor(getResources().getColor(R.color.dark_black));
+            isRecording = false;
+        }
+    }
+
+    public void  onEarMonitoringClicked (View view) {
+        android.util.Log.v("longxin","onEarMonitoringClicked");
+
+        Button iv = (Button) view;
+        mEar = !mEar;
+        if (mEar) {
+            iv.setTextColor(getResources().getColor(R.color.agora_blue));
+            worker().getRtcEngine().enableInEarMonitoring(true);
+        } else {
+            iv.setTextColor(getResources().getColor(R.color.dark_black));
+            worker().getRtcEngine().enableInEarMonitoring(false);
+        }
+    }
+
     @Override
     public void onJoinChannelSuccess(String channel, final int uid, int elapsed) {
         String msg = "onJoinChannelSuccess " + channel + " " + (uid & 0xFFFFFFFFL) + " " + elapsed;
@@ -416,7 +476,7 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
 //        worker().getRtcEngine().startAudioMixing("/sdcard/audio_leftbigrightsmall.wav",false,false,-1);
 //        worker().getRtcEngine().adjustAudioMixingPublishVolume(10);
 //        worker().getRtcEngine().adjustRecordingSignalVolume(200);
-          worker().getRtcEngine().enableInEarMonitoring(true);
+
 //        worker().getRtcEngine().setLocalVoiceChanger(Constants.GENERAL_BEAUTY_VOICE_MALE_MAGNETIC);//语聊美声:磁性(男)。此枚举为男声定制化 效果，不不适⽤用于⼥女女声。若⼥女女声使⽤用此⾳音效设 置，则⾳音频可能会产⽣生失真。
 //        worker().getRtcEngine().setLocalVoiceChanger(Constants.GENERAL_BEAUTY_VOICE_FEMALE_FRESH);//语聊美声:清新(⼥女女)。此枚举为⼥女女声定制化 效果，不不适⽤用于男声。若男声使⽤用此⾳音效设 置，则⾳音频可能会产⽣生失真。
 //        worker().getRtcEngine().setLocalVoiceChanger(Constants.GENERAL_BEAUTY_VOICE_FEMALE_VITALITY);//语聊美声:活⼒力力(⼥女女)。此枚举为⼥女女声定制化 效果，不不适⽤用于男声。若男声使⽤用此⾳音效设 置，则⾳音频可能会产⽣生失真。
@@ -544,8 +604,9 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
     }
 
     @Override
-    public boolean onRecordAudioFrame(int i, int i1, int i2, int i3, int i4, ByteBuffer byteBuffer, long l, int i5) {
-//        android.util.Log.v("longxin","onRecordAudioFrame");
+    public boolean onRecordAudioFrame(int type, int samplesPerChannel, int bytesPerSample,
+                                      int channels, int samplesPerSec, ByteBuffer buffer, long renderTimeMs, int avsync_type) {
+        startRecord(buffer,LiveRoomActivity.RECORD_FILE);
         return false;
     }
 
@@ -557,8 +618,67 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
 
     @Override
     public boolean onMixedAudioFrame(int i, int i1, int i2, int i3, int i4, ByteBuffer byteBuffer, long l, int i5) {
-        android.util.Log.v("longxin","onMixedAudioFrame");
+//        android.util.Log.v("longxin","onMixedAudioFrame");
+
         return false;
+    }
+
+    private static String RECORD_FILE = "testRecordSave.pcm";
+    private static String PLAYBACK_FILE = "testPlayBackSave.pcm";
+    private static String PLAYBACK_BEFORE_MIXING_FILE = "testPlayBackBeforeMixingSave.pcm";
+    private static String ONMIXED_FILE = "testMixedSave.pcm";
+    private void createPcmFile(String name){
+
+        SDCARD_DIR = Environment.getExternalStorageDirectory().getAbsolutePath();
+        if (SDCARD_DIR == null || SDCARD_DIR.equals("")) {
+            SDCARD_DIR = "";
+        }
+        File tmpFile = new File(SDCARD_DIR, name);
+        if(tmpFile.exists()) tmpFile.delete();
+        try {
+            if(LiveRoomActivity.RECORD_FILE.equals(name)) {
+                randomAccessFileForOnRecord = new RandomAccessFile(tmpFile, "rw");
+            } else if (LiveRoomActivity.ONMIXED_FILE.equals(name)) {
+                randomAccessFileForOnMixed = new RandomAccessFile(tmpFile, "rw");
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void startRecord(ByteBuffer byteBuffer,String name) {
+        if (isRecording) {
+            try {
+                if(LiveRoomActivity.RECORD_FILE.equals(name)) {
+                    randomAccessFileForOnRecord.write(bytebuffer2ByteArray(byteBuffer));
+                } else if (LiveRoomActivity.ONMIXED_FILE.equals(name)) {
+                    randomAccessFileForOnMixed.write(bytebuffer2ByteArray(byteBuffer));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private void stopRecordDraft(String name) {//演绎结束后调用，记录当前演绎信息
+        try {
+            if(LiveRoomActivity.RECORD_FILE.equals(name) && randomAccessFileForOnRecord != null) {
+                randomAccessFileForOnRecord.close();
+            } else if (LiveRoomActivity.ONMIXED_FILE.equals(name) && randomAccessFileForOnMixed != null) {
+                randomAccessFileForOnMixed.close();
+            }
+            isRecording = false;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static byte[] bytebuffer2ByteArray(ByteBuffer buffer) {
+        int len = buffer.limit() - buffer.position();
+        byte[] bytes = new byte[len];
+        buffer.get(bytes);
+        Log.e("AgoraManager", bytes.length + "");
+        return bytes;
     }
 
     @Override

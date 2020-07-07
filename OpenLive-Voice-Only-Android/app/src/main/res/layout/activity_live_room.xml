@@ -57,6 +57,33 @@
                 android:text="KTV混响"
                 android:textColor="@color/dark_black"/>
 
+            <Button
+                android:id="@id/onRecord"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:onClick="onRecordClicked"
+                android:scaleType="center"
+                android:text="record裸数据dump"
+                android:textColor="@color/dark_black"/>
+
+            <Button
+                android:id="@id/onMixed"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:onClick="onMixedClicked"
+                android:scaleType="center"
+                android:text="mixed裸数据dump"
+                android:textColor="@color/dark_black"/>
+
+            <Button
+                android:id="@id/EarMonitoring"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:onClick="onEarMonitoringClicked"
+                android:scaleType="center"
+                android:text="耳返"
+                android:textColor="@color/dark_black"/>
+
         </io.agora.propeller.ui.AGLinearLayout>
 
         <io.agora.propeller.ui.AGLinearLayout

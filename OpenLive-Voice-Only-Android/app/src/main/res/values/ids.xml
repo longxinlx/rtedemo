@@ -8,4 +8,8 @@
     <item name="audioMixing" type="id" />
     <item name="playeffect" type="id" />
     <item name="ktv" type="id" />
+    <item name="onRecord" type="id" />
+    <item name="onMixed" type="id" />
+    <item name="EarMonitoring" type="id" />
+
 </resources>
