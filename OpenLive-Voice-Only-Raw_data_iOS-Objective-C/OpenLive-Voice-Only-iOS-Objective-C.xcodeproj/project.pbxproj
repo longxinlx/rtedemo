@@ -30,8 +30,10 @@
 		A7D6139D1F7DE06C0033A5CC /* InfoModel.m in Sources */ = {isa = PBXBuildFile; fileRef = A7D6139B1F7DE06C0033A5CC /* InfoModel.m */; };
 		F103098824ADEC8B0077C4DD /* AgoraRtcKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F103098624ADEC5D0077C4DD /* AgoraRtcKit.framework */; };
 		F103098924ADEC8B0077C4DD /* AgoraRtcKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F103098624ADEC5D0077C4DD /* AgoraRtcKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		F1B450CD24ADC18100AE6F79 /* AudioWriteToFile.m in Sources */ = {isa = PBXBuildFile; fileRef = F1B450C924ADC18100AE6F79 /* AudioWriteToFile.m */; };
-		F1B450CE24ADC18100AE6F79 /* ExternalAudio.mm in Sources */ = {isa = PBXBuildFile; fileRef = F1B450CB24ADC18100AE6F79 /* ExternalAudio.mm */; };
+		F13880C724B86E48007DEEB8 /* AgoraMediaDataPlugin.mm in Sources */ = {isa = PBXBuildFile; fileRef = F13880C124B86E48007DEEB8 /* AgoraMediaDataPlugin.mm */; };
+		F13880C824B86E48007DEEB8 /* AgoraAudioRawData.m in Sources */ = {isa = PBXBuildFile; fileRef = F13880C224B86E48007DEEB8 /* AgoraAudioRawData.m */; };
+		F13880CF24B8962C007DEEB8 /* wav_pcm_file_writer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F13880CB24B8962C007DEEB8 /* wav_pcm_file_writer.cpp */; };
+		F13880D024B8962C007DEEB8 /* wav_header.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F13880CD24B8962C007DEEB8 /* wav_header.cpp */; };
 		F1CC156A24AC877F00215BB4 /* testeffect.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F1CC156924AC877F00215BB4 /* testeffect.mp3 */; };
 		F1CC156C24AC947100215BB4 /* audio_leftbigrightsmall.wav in Resources */ = {isa = PBXBuildFile; fileRef = F1CC156B24AC947000215BB4 /* audio_leftbigrightsmall.wav */; };
 /* End PBXBuildFile section */
@@ -85,10 +87,14 @@
 		A7D6139B1F7DE06C0033A5CC /* InfoModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InfoModel.m; sourceTree = "<group>"; };
 		A7D613B51F7DE8590033A5CC /* Define.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Define.h; sourceTree = "<group>"; };
 		F103098624ADEC5D0077C4DD /* AgoraRtcKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AgoraRtcKit.framework; sourceTree = "<group>"; };
-		F1B450C924ADC18100AE6F79 /* AudioWriteToFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioWriteToFile.m; sourceTree = "<group>"; };
-		F1B450CA24ADC18100AE6F79 /* ExternalAudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExternalAudio.h; sourceTree = "<group>"; };
-		F1B450CB24ADC18100AE6F79 /* ExternalAudio.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ExternalAudio.mm; sourceTree = "<group>"; };
-		F1B450CC24ADC18100AE6F79 /* AudioWriteToFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioWriteToFile.h; sourceTree = "<group>"; };
+		F13880C124B86E48007DEEB8 /* AgoraMediaDataPlugin.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AgoraMediaDataPlugin.mm; sourceTree = "<group>"; };
+		F13880C224B86E48007DEEB8 /* AgoraAudioRawData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AgoraAudioRawData.m; sourceTree = "<group>"; };
+		F13880C424B86E48007DEEB8 /* AgoraMediaDataPlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AgoraMediaDataPlugin.h; sourceTree = "<group>"; };
+		F13880C524B86E48007DEEB8 /* AgoraAudioRawData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AgoraAudioRawData.h; sourceTree = "<group>"; };
+		F13880CB24B8962C007DEEB8 /* wav_pcm_file_writer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wav_pcm_file_writer.cpp; sourceTree = "<group>"; };
+		F13880CC24B8962C007DEEB8 /* wav_pcm_file_writer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wav_pcm_file_writer.h; sourceTree = "<group>"; };
+		F13880CD24B8962C007DEEB8 /* wav_header.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wav_header.cpp; sourceTree = "<group>"; };
+		F13880CE24B8962C007DEEB8 /* wav_header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wav_header.h; sourceTree = "<group>"; };
 		F1CC156924AC877F00215BB4 /* testeffect.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = testeffect.mp3; sourceTree = "<group>"; };
 		F1CC156B24AC947000215BB4 /* audio_leftbigrightsmall.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = audio_leftbigrightsmall.wav; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -143,7 +149,8 @@
 		A7237F5A2126A64100F2F397 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				F1B450C824ADC18100AE6F79 /* ExternalAudio */,
+				F13880CA24B8962C007DEEB8 /* pcm_to_wav */,
+				F13880C024B86E48007DEEB8 /* rawdataplugin */,
 				A7D613891F7DE0210033A5CC /* MainViewController.h */,
 				A7D6138A1F7DE0210033A5CC /* MainViewController.m */,
 				A7D6138D1F7DE0410033A5CC /* RoomViewController.h */,
@@ -212,15 +219,26 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		F1B450C824ADC18100AE6F79 /* ExternalAudio */ = {
+		F13880C024B86E48007DEEB8 /* rawdataplugin */ = {
 			isa = PBXGroup;
 			children = (
-				F1B450C924ADC18100AE6F79 /* AudioWriteToFile.m */,
-				F1B450CA24ADC18100AE6F79 /* ExternalAudio.h */,
-				F1B450CB24ADC18100AE6F79 /* ExternalAudio.mm */,
-				F1B450CC24ADC18100AE6F79 /* AudioWriteToFile.h */,
+				F13880C124B86E48007DEEB8 /* AgoraMediaDataPlugin.mm */,
+				F13880C224B86E48007DEEB8 /* AgoraAudioRawData.m */,
+				F13880C424B86E48007DEEB8 /* AgoraMediaDataPlugin.h */,
+				F13880C524B86E48007DEEB8 /* AgoraAudioRawData.h */,
 			);
-			path = ExternalAudio;
+			path = rawdataplugin;
+			sourceTree = "<group>";
+		};
+		F13880CA24B8962C007DEEB8 /* pcm_to_wav */ = {
+			isa = PBXGroup;
+			children = (
+				F13880CB24B8962C007DEEB8 /* wav_pcm_file_writer.cpp */,
+				F13880CC24B8962C007DEEB8 /* wav_pcm_file_writer.h */,
+				F13880CD24B8962C007DEEB8 /* wav_header.cpp */,
+				F13880CE24B8962C007DEEB8 /* wav_header.h */,
+			);
+			path = pcm_to_wav;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -301,18 +319,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F13880CF24B8962C007DEEB8 /* wav_pcm_file_writer.cpp in Sources */,
 				A7D613521F7DDEE60033A5CC /* AppDelegate.m in Sources */,
 				A7D613871F7DE00C0033A5CC /* ChannelNameCheck.m in Sources */,
 				A7D6134F1F7DDEE60033A5CC /* main.m in Sources */,
+				F13880D024B8962C007DEEB8 /* wav_header.cpp in Sources */,
 				A7D613951F7DE04E0033A5CC /* InfoCell.m in Sources */,
+				F13880C824B86E48007DEEB8 /* AgoraAudioRawData.m in Sources */,
 				A7D6138B1F7DE0210033A5CC /* MainViewController.m in Sources */,
 				A7D6138F1F7DE0410033A5CC /* RoomViewController.m in Sources */,
 				A72C5DD01F7F8C13004F1EA2 /* RoleButton.m in Sources */,
 				A7D613941F7DE04E0033A5CC /* ChatButton.m in Sources */,
-				F1B450CD24ADC18100AE6F79 /* AudioWriteToFile.m in Sources */,
+				F13880C724B86E48007DEEB8 /* AgoraMediaDataPlugin.mm in Sources */,
 				A70E43D423C5C36D00FC9581 /* KeyCenter.m in Sources */,
 				A7D6139D1F7DE06C0033A5CC /* InfoModel.m in Sources */,
-				F1B450CE24ADC18100AE6F79 /* ExternalAudio.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

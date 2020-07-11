@@ -89,7 +89,7 @@
                                 <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iHx-Rl-bsW">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iHx-Rl-bsW" userLabel="apibuttonbottom">
                                 <rect key="frame" x="0.0" y="579" width="375" height="88"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bEJ-xN-Ibx" customClass="ChatButton">
@@ -171,9 +171,62 @@
                                     <constraint firstItem="2wT-Gu-pyp" firstAttribute="width" secondItem="sKQ-qk-QE0" secondAttribute="width" id="xna-wA-crv"/>
                                 </constraints>
                             </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nBr-Gy-jJq" userLabel="apibutton">
+                                <rect key="frame" x="0.0" y="217" width="375" height="362"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="MXC-4p-o57">
+                                        <rect key="frame" x="8" y="8" width="83" height="44"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="audioMixing">
+                                            <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="clickStartAudioMixing:" destination="DMb-WW-FgV" eventType="touchUpInside" id="AtY-D1-PJq"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="Wom-pY-sOw" userLabel="playEffect">
+                                        <rect key="frame" x="1" y="33" width="83" height="60"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="playEffect">
+                                            <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </state>
+                                        <state key="selected">
+                                            <color key="titleColor" red="0.016804177310000001" green="0.19835099580000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <state key="highlighted">
+                                            <color key="titleColor" systemColor="systemBlueColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="clickPlayEffect:" destination="DMb-WW-FgV" eventType="touchUpInside" id="Ulx-vW-8eI"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="ibF-ut-6x9" userLabel="publishMic">
+                                        <rect key="frame" x="4" y="79" width="76" height="26"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="publishMic">
+                                            <color key="titleColor" red="0.016804177310000001" green="0.19835099580000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="publishMic:" destination="DMb-WW-FgV" eventType="touchUpInside" id="MH3-6k-NFn"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="Hnb-Mp-TEN" userLabel="muteRecording">
+                                        <rect key="frame" x="1" y="101" width="147" height="42"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="muteRecordingSignal">
+                                            <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="muteRecordingSignal:" destination="DMb-WW-FgV" eventType="touchUpInside" id="Wu6-F9-jA1"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="zY7-Qp-kLO">
-                                <rect key="frame" x="0.0" y="54" width="375" height="525"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <rect key="frame" x="0.0" y="54" width="375" height="163"/>
+                                <color key="backgroundColor" systemColor="systemRedColor" red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="separatorColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="sectionIndexBackgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="infoID" id="Ck2-wK-JH2" customClass="InfoCell">
@@ -206,68 +259,21 @@
                                     <outlet property="delegate" destination="DMb-WW-FgV" id="Q6Q-Sn-k2e"/>
                                 </connections>
                             </tableView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="Reg-u6-Hbq" userLabel="unmuteRecording">
-                                <rect key="frame" x="200" y="464" width="175" height="23"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="unmuteRecordingSignal"/>
-                                <connections>
-                                    <action selector="unmuteRecordingSignal:" destination="DMb-WW-FgV" eventType="touchUpInside" id="eO7-wF-Nvf"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="MXC-4p-o57">
-                                <rect key="frame" x="292" y="311" width="83" height="44"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="audioMixing"/>
-                                <connections>
-                                    <action selector="clickStartAudioMixing:" destination="DMb-WW-FgV" eventType="touchUpInside" id="AtY-D1-PJq"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="Wom-pY-sOw" userLabel="playEffect">
-                                <rect key="frame" x="292" y="329" width="83" height="60"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="playEffect"/>
-                                <connections>
-                                    <action selector="clickPlayEffect:" destination="DMb-WW-FgV" eventType="touchUpInside" id="Ulx-vW-8eI"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="ibF-ut-6x9" userLabel="publishMic">
-                                <rect key="frame" x="292" y="373" width="76" height="26"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="publishMic"/>
-                                <connections>
-                                    <action selector="publishMic:" destination="DMb-WW-FgV" eventType="touchUpInside" id="MH3-6k-NFn"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="TBO-qY-Q88" userLabel="unpublishMic">
-                                <rect key="frame" x="279" y="397" width="92" height="36"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="unpublishMic"/>
-                                <connections>
-                                    <action selector="unpublishMic:" destination="DMb-WW-FgV" eventType="touchUpInside" id="G2A-b5-CZz"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="Hnb-Mp-TEN" userLabel="muteRecording">
-                                <rect key="frame" x="225" y="424" width="147" height="42"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="muteRecordingSignal"/>
-                                <connections>
-                                    <action selector="muteRecordingSignal:" destination="DMb-WW-FgV" eventType="touchUpInside" id="Wu6-F9-jA1"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <color key="backgroundColor" red="0.46432183649999997" green="0.79156735909999998" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="lL2-xS-KvI" firstAttribute="top" secondItem="Wom-pY-sOw" secondAttribute="bottom" constant="50" id="0u8-Nh-OHP"/>
                             <constraint firstItem="iHx-Rl-bsW" firstAttribute="leading" secondItem="dJD-1U-CfK" secondAttribute="leading" id="16j-gT-eV5"/>
                             <constraint firstItem="YlG-1Z-sJD" firstAttribute="top" secondItem="eNG-78-T8x" secondAttribute="bottom" constant="20" id="9qc-UX-hAg"/>
                             <constraint firstItem="zY7-Qp-kLO" firstAttribute="leading" secondItem="dJD-1U-CfK" secondAttribute="leading" id="GfK-7u-Jcb"/>
+                            <constraint firstItem="nBr-Gy-jJq" firstAttribute="bottom" secondItem="MsB-nO-AaJ" secondAttribute="top" id="HSw-xW-vAa"/>
+                            <constraint firstItem="nBr-Gy-jJq" firstAttribute="width" secondItem="dJD-1U-CfK" secondAttribute="width" id="Ise-0M-U5P"/>
                             <constraint firstAttribute="trailing" secondItem="iHx-Rl-bsW" secondAttribute="trailing" id="KdI-BO-zz4"/>
                             <constraint firstItem="YlG-1Z-sJD" firstAttribute="centerX" secondItem="dJD-1U-CfK" secondAttribute="centerX" id="QEW-vN-gTz"/>
-                            <constraint firstItem="lL2-xS-KvI" firstAttribute="top" secondItem="TBO-qY-Q88" secondAttribute="bottom" id="bEe-6f-xfM"/>
+                            <constraint firstItem="nBr-Gy-jJq" firstAttribute="top" secondItem="zY7-Qp-kLO" secondAttribute="bottom" id="WQ0-jb-z5Q"/>
                             <constraint firstAttribute="trailing" secondItem="zY7-Qp-kLO" secondAttribute="trailing" id="iGQ-Pv-DVi"/>
-                            <constraint firstItem="iHx-Rl-bsW" firstAttribute="top" secondItem="zY7-Qp-kLO" secondAttribute="bottom" id="peB-dc-gEk"/>
+                            <constraint firstItem="iHx-Rl-bsW" firstAttribute="top" secondItem="zY7-Qp-kLO" secondAttribute="bottom" constant="362" id="peB-dc-gEk"/>
                             <constraint firstItem="lL2-xS-KvI" firstAttribute="top" secondItem="iHx-Rl-bsW" secondAttribute="bottom" id="smF-vB-36M"/>
-                            <constraint firstItem="lL2-xS-KvI" firstAttribute="top" secondItem="MXC-4p-o57" secondAttribute="bottom" constant="8" symbolic="YES" id="uOh-HW-nJ0"/>
+                            <constraint firstItem="nBr-Gy-jJq" firstAttribute="leading" secondItem="iHx-Rl-bsW" secondAttribute="leading" id="th9-6o-Rfi"/>
                             <constraint firstItem="zY7-Qp-kLO" firstAttribute="top" secondItem="YlG-1Z-sJD" secondAttribute="bottom" constant="10" id="yYN-yl-4lW"/>
                         </constraints>
                     </view>

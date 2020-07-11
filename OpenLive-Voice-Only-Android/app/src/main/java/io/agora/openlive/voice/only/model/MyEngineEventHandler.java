@@ -56,6 +56,7 @@ public class MyEngineEventHandler {
 
         @Override
         public void onAudioVolumeIndication(AudioVolumeInfo[] speakerInfos, int totalVolume) {
+//            android.util.Log.v("longxin","onAudioVolumeIndication totalVolume:"+totalVolume);
 //            android.util.Log.v("longxin","onAudioVolumeIndication");
             if (speakerInfos == null) {
                 // quick and dirty fix for crash
@@ -159,6 +160,7 @@ public class MyEngineEventHandler {
         @Override
         public void onConnectionStateChanged(int state, int reason) {
             android.util.Log.v("longxin","state:"+state+"   reason:"+reason);
+
             super.onConnectionStateChanged(state, reason);
         }
     };

@@ -11,5 +11,5 @@
     <item name="onRecord" type="id" />
     <item name="onMixed" type="id" />
     <item name="EarMonitoring" type="id" />
-
+    <item name="mutemic" type="id" />
 </resources>

@@ -52,7 +52,9 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
     public static String SDCARD_DIR;
     private RandomAccessFile randomAccessFileForOnRecord;
     private RandomAccessFile randomAccessFileForOnMixed;
-    private boolean isRecording = true;
+    private boolean isRecording = false;
+    private boolean isMixing = false;
+    private boolean isMuteMic = false;
 
     private volatile int mAudioRouting = -1; // Default
 
@@ -60,8 +62,8 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_live_room);
-        createPcmFile(RECORD_FILE);
-        createPcmFile(ONMIXED_FILE);
+//        createPcmFile(RECORD_FILE);
+//        createPcmFile(ONMIXED_FILE);
     }
 
     @Override
@@ -98,11 +100,12 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
         } else {
             audienceUI(button1, button2);
         }
-        worker().getRtcEngine().registerAudioFrameObserver(this);
-        worker().getRtcEngine().setPlaybackAudioFrameParameters(48000 , 2, 0, 480);
-        worker().getRtcEngine().setRecordingAudioFrameParameters(48000 , 2, 0, 480);
-        worker().getRtcEngine().setMixedAudioFrameParameters(48000 , 2,480);
-        worker().getRtcEngine().setPlaybackAudioFrameBeforeMixingParameters(48000 , 2);
+//        worker().getRtcEngine().registerAudioFrameObserver(this);
+//        worker().getRtcEngine().setPlaybackAudioFrameParameters(48000 , 2, 0, 480);
+//        worker().getRtcEngine().setRecordingAudioFrameParameters(48000 , 1, 0, 480);
+//        worker().getRtcEngine().setRecordingAudioFrameParameters(48000 , 2, 0, 480);
+//        worker().getRtcEngine().setMixedAudioFrameParameters(48000 , 2,480);
+//        worker().getRtcEngine().setPlaybackAudioFrameBeforeMixingParameters(48000 , 2);
         worker().joinChannel(roomName, config().mUid);
 
         TextView textRoomName = (TextView) findViewById(R.id.room_name);
@@ -428,12 +431,15 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
         mOnRecord = !mOnRecord;
         if (mOnRecord) {
             iv.setTextColor(getResources().getColor(R.color.agora_blue));
-
+            createPcmFile(RECORD_FILE);
+            worker().getRtcEngine().setRecordingAudioFrameParameters(48000 , 2, 0, 480);
+            worker().getRtcEngine().registerAudioFrameObserver(this);
             isRecording = true;
         } else {
             iv.setTextColor(getResources().getColor(R.color.dark_black));
             isRecording = false;
-
+            stopRecordDraft(LiveRoomActivity.RECORD_FILE);
+            worker().getRtcEngine().registerAudioFrameObserver(null);
         }
     }
 
@@ -444,11 +450,15 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
         mOnMixed = !mOnMixed;
         if (mOnMixed) {
             iv.setTextColor(getResources().getColor(R.color.agora_blue));
-
-            isRecording = true;
+            createPcmFile(ONMIXED_FILE);
+            worker().getRtcEngine().setMixedAudioFrameParameters(48000 , 2,480);
+            worker().getRtcEngine().registerAudioFrameObserver(this);
+            isMixing = true;
         } else {
             iv.setTextColor(getResources().getColor(R.color.dark_black));
-            isRecording = false;
+            isMixing = false;
+            stopRecordDraft(LiveRoomActivity.ONMIXED_FILE);
+            worker().getRtcEngine().registerAudioFrameObserver(null);
         }
     }
 
@@ -465,6 +475,21 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
             worker().getRtcEngine().enableInEarMonitoring(false);
         }
     }
+
+    public void  onMuteMicClicked (View view) {
+        android.util.Log.v("longxin","onMuteMicClicked");
+
+        Button iv = (Button) view;
+        isMuteMic = !isMuteMic;
+        if (isMuteMic) {
+            iv.setTextColor(getResources().getColor(R.color.agora_blue));
+            worker().getRtcEngine().adjustRecordingSignalVolume(0);
+        } else {
+            iv.setTextColor(getResources().getColor(R.color.dark_black));
+            worker().getRtcEngine().adjustRecordingSignalVolume(100);
+        }
+    }
+
 
     @Override
     public void onJoinChannelSuccess(String channel, final int uid, int elapsed) {
@@ -534,22 +559,22 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
             case AGEventHandler.EVENT_TYPE_ON_SPEAKER_STATS: {
                 IRtcEngineEventHandler.AudioVolumeInfo[] infos = (IRtcEngineEventHandler.AudioVolumeInfo[]) data[0];
 
-                if (infos.length == 1 && infos[0].uid == 0) { // local guy, ignore it
+//                if (infos.length == 1 && infos[0].uid == 0) { // local guy, ignore it
 //                    android.util.Log.v("longxin","self:"+ infos[0].uid + " volume:"+infos[0].volume);
-                    break;
-                }
+//                    break;
+//                }
 
                 StringBuilder volumeCache = new StringBuilder();
                 for (IRtcEngineEventHandler.AudioVolumeInfo each : infos) {
                     peerUid = each.uid;
                     int peerVolume = each.volume;
 
-                    if (peerUid == 0) {
-                        continue;
-                    }
+//                    if (peerUid == 0) {
+//                        continue;
+//                    }
 
                     volumeCache.append("volume: ").append(peerUid & 0xFFFFFFFFL).append(" ").append(peerVolume).append("\n");
-//                    android.util.Log.v("longxin","uid:"+ each.uid + " volume:"+each.volume);
+                    android.util.Log.v("longxin","uid:"+ each.uid + " volume:"+each.volume);
                 }
 
                 if (volumeCache.length() > 0) {
@@ -619,7 +644,7 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
     @Override
     public boolean onMixedAudioFrame(int i, int i1, int i2, int i3, int i4, ByteBuffer byteBuffer, long l, int i5) {
 //        android.util.Log.v("longxin","onMixedAudioFrame");
-
+            startOnMixed(byteBuffer,ONMIXED_FILE);
         return false;
     }
 
@@ -652,8 +677,6 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
             try {
                 if(LiveRoomActivity.RECORD_FILE.equals(name)) {
                     randomAccessFileForOnRecord.write(bytebuffer2ByteArray(byteBuffer));
-                } else if (LiveRoomActivity.ONMIXED_FILE.equals(name)) {
-                    randomAccessFileForOnMixed.write(bytebuffer2ByteArray(byteBuffer));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -664,10 +687,30 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
         try {
             if(LiveRoomActivity.RECORD_FILE.equals(name) && randomAccessFileForOnRecord != null) {
                 randomAccessFileForOnRecord.close();
-            } else if (LiveRoomActivity.ONMIXED_FILE.equals(name) && randomAccessFileForOnMixed != null) {
-                randomAccessFileForOnMixed.close();
             }
             isRecording = false;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void startOnMixed(ByteBuffer byteBuffer,String name) {
+        if (isMixing) {
+            try {
+              if (LiveRoomActivity.ONMIXED_FILE.equals(name)) {
+                    randomAccessFileForOnMixed.write(bytebuffer2ByteArray(byteBuffer));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private void stopOnMixedDraft(String name) {//演绎结束后调用，记录当前演绎信息
+        try {
+           if (LiveRoomActivity.ONMIXED_FILE.equals(name) && randomAccessFileForOnMixed != null) {
+                randomAccessFileForOnMixed.close();
+            }
+            isMixing = false;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -686,6 +729,7 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
 //        android.util.Log.v("longxin","onPlaybackAudioFrameBeforeMixing");
         return false;
     }
+
 
 
 }
