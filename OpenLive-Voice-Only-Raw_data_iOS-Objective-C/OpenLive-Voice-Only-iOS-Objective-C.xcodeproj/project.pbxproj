@@ -34,7 +34,7 @@
 		F13880C824B86E48007DEEB8 /* AgoraAudioRawData.m in Sources */ = {isa = PBXBuildFile; fileRef = F13880C224B86E48007DEEB8 /* AgoraAudioRawData.m */; };
 		F13880CF24B8962C007DEEB8 /* wav_pcm_file_writer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F13880CB24B8962C007DEEB8 /* wav_pcm_file_writer.cpp */; };
 		F13880D024B8962C007DEEB8 /* wav_header.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F13880CD24B8962C007DEEB8 /* wav_header.cpp */; };
-		F14E690B24BEE92B007F36AA /* PFAudio.mm in Sources */ = {isa = PBXBuildFile; fileRef = F14E690A24BEE92B007F36AA /* PFAudio.mm */; };
+		F14E690E24BF05F1007F36AA /* PcmToWav.mm in Sources */ = {isa = PBXBuildFile; fileRef = F14E690D24BF05F1007F36AA /* PcmToWav.mm */; };
 		F1CC156A24AC877F00215BB4 /* testeffect.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F1CC156924AC877F00215BB4 /* testeffect.mp3 */; };
 		F1CC156C24AC947100215BB4 /* audio_leftbigrightsmall.wav in Resources */ = {isa = PBXBuildFile; fileRef = F1CC156B24AC947000215BB4 /* audio_leftbigrightsmall.wav */; };
 /* End PBXBuildFile section */
@@ -96,8 +96,8 @@
 		F13880CC24B8962C007DEEB8 /* wav_pcm_file_writer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wav_pcm_file_writer.h; sourceTree = "<group>"; };
 		F13880CD24B8962C007DEEB8 /* wav_header.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wav_header.cpp; sourceTree = "<group>"; };
 		F13880CE24B8962C007DEEB8 /* wav_header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wav_header.h; sourceTree = "<group>"; };
-		F14E690924BEE92B007F36AA /* PFAudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PFAudio.h; path = ../../../../../../../../../longxinlx/github/PFAudioLib/PFAudioLib/Classes/PFAudio.h; sourceTree = "<group>"; };
-		F14E690A24BEE92B007F36AA /* PFAudio.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PFAudio.mm; path = ../../../../../../../../../longxinlx/github/PFAudioLib/PFAudioLib/Classes/PFAudio.mm; sourceTree = "<group>"; };
+		F14E690C24BF05F1007F36AA /* PcmToWav.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PcmToWav.h; sourceTree = "<group>"; };
+		F14E690D24BF05F1007F36AA /* PcmToWav.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PcmToWav.mm; sourceTree = "<group>"; };
 		F1CC156924AC877F00215BB4 /* testeffect.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = testeffect.mp3; sourceTree = "<group>"; };
 		F1CC156B24AC947000215BB4 /* audio_leftbigrightsmall.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = audio_leftbigrightsmall.wav; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -236,8 +236,8 @@
 		F13880CA24B8962C007DEEB8 /* pcm_to_wav */ = {
 			isa = PBXGroup;
 			children = (
-				F14E690924BEE92B007F36AA /* PFAudio.h */,
-				F14E690A24BEE92B007F36AA /* PFAudio.mm */,
+				F14E690C24BF05F1007F36AA /* PcmToWav.h */,
+				F14E690D24BF05F1007F36AA /* PcmToWav.mm */,
 				F13880CB24B8962C007DEEB8 /* wav_pcm_file_writer.cpp */,
 				F13880CC24B8962C007DEEB8 /* wav_pcm_file_writer.h */,
 				F13880CD24B8962C007DEEB8 /* wav_header.cpp */,
@@ -332,8 +332,8 @@
 				A7D613951F7DE04E0033A5CC /* InfoCell.m in Sources */,
 				F13880C824B86E48007DEEB8 /* AgoraAudioRawData.m in Sources */,
 				A7D6138B1F7DE0210033A5CC /* MainViewController.m in Sources */,
-				F14E690B24BEE92B007F36AA /* PFAudio.mm in Sources */,
 				A7D6138F1F7DE0410033A5CC /* RoomViewController.m in Sources */,
+				F14E690E24BF05F1007F36AA /* PcmToWav.mm in Sources */,
 				A72C5DD01F7F8C13004F1EA2 /* RoleButton.m in Sources */,
 				A7D613941F7DE04E0033A5CC /* ChatButton.m in Sources */,
 				F13880C724B86E48007DEEB8 /* AgoraMediaDataPlugin.mm in Sources */,

@@ -12,7 +12,7 @@
 #import "InfoCell.h"
 #import "InfoModel.h"
 #import "AgoraMediaDataPlugin.h"
-#import "PFAudio.h"
+#import "PcmToWav.h"
 @interface RoomViewController () <UITableViewDataSource, UITableViewDelegate, AgoraRtcEngineDelegate,AgoraAudioDataPluginDelegate>
 @property (weak, nonatomic) IBOutlet UILabel *roomNameLabel;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
@@ -451,7 +451,7 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
     
     NSLog(@"docuPath is %@" , docuPath);
     
-    BOOL isSuccess = [[PFAudio shareInstance] pcm2Wav:docuPath isDeleteSourchFile:NO];
+    BOOL isSuccess = [[PcmToWav shareInstance] pcm2Wav:docuPath isDeleteSourchFile:NO];
     if(isSuccess) {
         NSLog(@"pcm convert to wav success");
     } else {
