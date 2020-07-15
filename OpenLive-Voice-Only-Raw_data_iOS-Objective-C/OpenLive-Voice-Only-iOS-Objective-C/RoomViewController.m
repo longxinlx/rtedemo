@@ -12,7 +12,7 @@
 #import "InfoCell.h"
 #import "InfoModel.h"
 #import "AgoraMediaDataPlugin.h"
-
+#import "PFAudio.h"
 @interface RoomViewController () <UITableViewDataSource, UITableViewDelegate, AgoraRtcEngineDelegate,AgoraAudioDataPluginDelegate>
 @property (weak, nonatomic) IBOutlet UILabel *roomNameLabel;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
@@ -370,7 +370,6 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
                 if ([fileManager fileExistsAtPath:audioFile]) {
                     [fileManager removeItemAtPath:audioFile error:nil];
                 }
-                
                 fp_OnRecord_pcm = fopen([audioFile UTF8String], "wb++");
             break;
         case AgoraSDKRawDataType_OnMixed:
@@ -430,6 +429,7 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
     switch (agoraSDKRawDataType) {
            case AgoraSDKRawDataType_OnRecord :
                fclose(fp_OnRecord_pcm);
+//            [self convertPcmToWav:@"/onRecord.pcm"];
                break;
            case AgoraSDKRawDataType_OnMixed:
                fclose(fp_OnMixed_pcm);
@@ -444,4 +444,19 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
                break;
        }
 }
+
+- (void) convertPcmToWav:(NSString *) pcmPath {
+    NSArray *documentPaths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
+    NSString *docuPath = [[[documentPaths firstObject] stringByAppendingPathComponent:audioRawDataDir] stringByAppendingString:pcmPath];
+    
+    NSLog(@"docuPath is %@" , docuPath);
+    
+    BOOL isSuccess = [[PFAudio shareInstance] pcm2Wav:docuPath isDeleteSourchFile:NO];
+    if(isSuccess) {
+        NSLog(@"pcm convert to wav success");
+    } else {
+        NSLog(@"pcm convert to wav failed");
+    }
+}
+
 @end
