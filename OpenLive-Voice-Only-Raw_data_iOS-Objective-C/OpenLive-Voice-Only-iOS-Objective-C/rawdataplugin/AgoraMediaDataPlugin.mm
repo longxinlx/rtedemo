@@ -56,47 +56,51 @@ public:
     
     virtual bool onPlaybackAudioFrame(AudioFrame& audioFrame) override
     {
-//        @synchronized(mediaDataPlugin) {
-//            @autoreleasepool {
-//                if (!mediaDataPlugin) return true;
-//                if ([mediaDataPlugin.audioDelegate respondsToSelector:@selector(mediaDataPlugin:willPlaybackAudioRawData:)]) {
-//                    AgoraAudioRawData *data = getAudioRawDataWithAudioFrame(audioFrame);
-//                    [mediaDataPlugin.audioDelegate mediaDataPlugin:mediaDataPlugin willPlaybackAudioRawData:data];
-//                }
-//            }
+        @synchronized(mediaDataPlugin) {
+            @autoreleasepool {
+                NSLog(@"------------onPlaybackAudioFrame----------------");
+                if (!mediaDataPlugin) return true;
+                if ([mediaDataPlugin.audioDelegate respondsToSelector:@selector(mediaDataPlugin:willPlaybackAudioRawData:)]) {
+                    AgoraAudioRawData *data = getAudioRawDataWithAudioFrame(audioFrame);
+                    [mediaDataPlugin.audioDelegate mediaDataPlugin:mediaDataPlugin willPlaybackAudioRawData:data];
+                }
+            }
             return true;
-//        }
+        }
     }
     
     virtual bool onPlaybackAudioFrameBeforeMixing(unsigned int uid, AudioFrame& audioFrame) override
     {
-//        @synchronized(mediaDataPlugin) {
-//            @autoreleasepool {
-//                if (!mediaDataPlugin) return true;
-//                if ([mediaDataPlugin.audioDelegate respondsToSelector:@selector(mediaDataPlugin:willPlaybackBeforeMixingAudioRawData:)]) {
-//                    AgoraAudioRawData *data = getAudioRawDataWithAudioFrame(audioFrame);
-//                    [mediaDataPlugin.audioDelegate mediaDataPlugin:mediaDataPlugin willPlaybackBeforeMixingAudioRawData:data];
-//                }
-//            }
+        @synchronized(mediaDataPlugin) {
+            @autoreleasepool {
+                NSLog(@"------------onPlaybackAudioFrameBeforeMixing----------------");
+                if (!mediaDataPlugin) return true;
+                if ([mediaDataPlugin.audioDelegate respondsToSelector:@selector(mediaDataPlugin:willPlaybackBeforeMixingAudioRawData:)]) {
+                    AgoraAudioRawData *data = getAudioRawDataWithAudioFrame(audioFrame);
+                    [mediaDataPlugin.audioDelegate mediaDataPlugin:mediaDataPlugin willPlaybackBeforeMixingAudioRawData:data];
+                }
+            }
             return true;
-//        }
+        }
     }
     
     virtual bool onMixedAudioFrame(AudioFrame& audioFrame) override
     {
-//        @synchronized(mediaDataPlugin) {
-//            @autoreleasepool {
-//                if (!mediaDataPlugin) return true;
-//                if ([mediaDataPlugin.audioDelegate respondsToSelector:@selector(mediaDataPlugin:didMixedAudioRawData:)]) {
-//                    AgoraAudioRawData *data = getAudioRawDataWithAudioFrame(audioFrame);
-//                    [mediaDataPlugin.audioDelegate mediaDataPlugin:mediaDataPlugin didMixedAudioRawData:data];
-//                }
-//            }
+        @synchronized(mediaDataPlugin) {
+            @autoreleasepool {
+                NSLog(@"------------onMixedAudioFrame----------------");
+                if (!mediaDataPlugin) return true;
+                if ([mediaDataPlugin.audioDelegate respondsToSelector:@selector(mediaDataPlugin:didMixedAudioRawData:)]) {
+                    AgoraAudioRawData *data = getAudioRawDataWithAudioFrame(audioFrame);
+                    [mediaDataPlugin.audioDelegate mediaDataPlugin:mediaDataPlugin didMixedAudioRawData:data];
+                }
+            }
             return true;
-//        }
+        }
     }
 };
 
+//static AgoraAudioFrameObserver* s_audioFrameObserver;
 static AgoraAudioFrameObserver s_audioFrameObserver;
 
 @implementation AgoraMediaDataPlugin
@@ -135,6 +139,9 @@ static AgoraAudioFrameObserver s_audioFrameObserver;
     rtc_engine->queryInterface(agora::rtc::AGORA_IID_MEDIA_ENGINE, reinterpret_cast<void**>(&mediaEngine));
     if (mediaEngine)
     {
+        NSLog(@"mediaEngine->registerAudioFrameObserver(&s_audioFrameObserver)");
+//        s_audioFrameObserver = new AgoraAudioFrameObserver();
+//        mediaEngine->registerAudioFrameObserver(s_audioFrameObserver);
         mediaEngine->registerAudioFrameObserver(&s_audioFrameObserver);
         s_audioFrameObserver.mediaDataPlugin = self;
     }
@@ -146,8 +153,13 @@ static AgoraAudioFrameObserver s_audioFrameObserver;
     rtc_engine->queryInterface(agora::rtc::AGORA_IID_MEDIA_ENGINE, reinterpret_cast<void**>(&mediaEngine));
     if (mediaEngine)
     {
-        mediaEngine->registerAudioFrameObserver(&s_audioFrameObserver);
+        NSLog(@"mediaEngine->registerAudioFrameObserver(NULL)");
+        mediaEngine->registerAudioFrameObserver(NULL);
+
         s_audioFrameObserver.mediaDataPlugin = nil;
+//        free(&s_audioFrameObserver);//crash
+        //        s_audioFrameObserver -> mediaDataPlugin = nil;
+//        delete(s_audioFrameObserver);//crash
     }
 }
 @end

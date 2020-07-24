@@ -13,6 +13,8 @@
 #import "InfoModel.h"
 #import "AgoraMediaDataPlugin.h"
 #import "PcmToWav.h"
+#import <AVFoundation/AVFoundation.h>
+
 @interface RoomViewController () <UITableViewDataSource, UITableViewDelegate, AgoraRtcEngineDelegate,AgoraAudioDataPluginDelegate>
 @property (weak, nonatomic) IBOutlet UILabel *roomNameLabel;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
@@ -26,6 +28,11 @@
 @property (assign, nonatomic) BOOL isPlayEffect;
 @property (assign, nonatomic) BOOL isPublishMic;
 @property (assign, nonatomic) BOOL isMuteRecordingSignal;
+@property (assign, nonatomic) BOOL isDumpRecordPcm;
+@property (assign, nonatomic) BOOL isDumpPlayBackPcm;
+@property (assign, nonatomic) BOOL isDumpOnMixedPcm;
+@property (assign, nonatomic) BOOL isDumpPlayBackBeforeMixing;
+@property (strong, nonatomic) AVPlayer *avPlayer;
 @end
 
 static NSString *cellID = @"infoID";
@@ -36,6 +43,8 @@ FILE *fp_OnMixed_pcm = NULL;
 FILE *fp_PlayBack_pcm = NULL;
 FILE *fp_PlayBackBeforeMixing_pcm = NULL;
 NSString *audioRawDataDir = @"audioRawDataDir";
+int currentRawDataDumpType = -1;
+
 typedef NS_ENUM(int, AgoraSDKRawDataType) {
     AgoraSDKRawDataType_OnRecord,
     AgoraSDKRawDataType_OnMixed,
@@ -53,7 +62,55 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
     self.isMuteRecordingSignal = NO;
     self.isPublishMic = YES;
     self.isPlayEffect = NO;
+    self.isDumpRecordPcm = NO;
+    self.isDumpPlayBackPcm = NO;
+    self.isDumpOnMixedPcm = NO;
+    self.isDumpPlayBackBeforeMixing = NO;
+    
+    //网络视频播放
+//      NSString *playString = @"http://static.tripbe.com/videofiles/20121214/9533522808.f4v.mp4";
+//      NSURL *url = [NSURL URLWithString:playString];
+    
+    NSString *path = [[NSBundle mainBundle]pathForResource:@"test" ofType:@"mp4"];
+    NSLog(@"path is %@",path);
+    NSURL *url = [NSURL fileURLWithPath:path];
+    //设置播放的项目
+    AVPlayerItem *item = [[AVPlayerItem alloc] initWithURL:url];
+    //初始化player对象
+    self.avPlayer = [[AVPlayer alloc] initWithPlayerItem:item];
+    //设置播放页面
+    AVPlayerLayer *layer = [AVPlayerLayer playerLayerWithPlayer:_avPlayer];
+    //设置播放页面的大小
+    layer.frame = CGRectMake(0, 55, [UIScreen mainScreen].bounds.size.width, 155);
+    layer.backgroundColor = [UIColor cyanColor].CGColor;
+    //设置播放窗口和当前视图之间的比例显示内容
+    //1.保持纵横比；适合层范围内
+    //2.保持纵横比；填充层边界
+    //3.拉伸填充层边界
+    /*
+    第1种AVLayerVideoGravityResizeAspect是按原视频比例显示，是竖屏的就显示出竖屏的，两边留黑；
+    第2种AVLayerVideoGravityResizeAspectFill是以原比例拉伸视频，直到两边屏幕都占满，但视频内容有部分就被切割了；
+    第3种AVLayerVideoGravityResize是拉伸视频内容达到边框占满，但不按原比例拉伸，这里明显可以看出宽度被拉伸了。
+     */
+    layer.videoGravity = AVLayerVideoGravityResizeAspect;
+    //添加播放视图到self.view
+    [self.view.layer addSublayer:layer];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackFinished:) name:AVPlayerItemDidPlayToEndTimeNotification object:self.avPlayer.currentItem];
+    
+    //视频播放
+    [self.avPlayer setVolume:0];
+    [self.avPlayer play];
 }
+
+#pragma mark - playBackFinished
+-(void)playbackFinished:(NSNotification*)noti{
+    
+    [self.avPlayer seekToTime:CMTimeMake(0, 1)];
+    [self.avPlayer play];
+
+}
+
 
 #pragma mark- setupViews
 - (void)updateViews {
@@ -65,16 +122,16 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
 #pragma mark- initAgoraKit
 - (void)loadAgoraKit {
 
-    AgoraRtcEngineConfig * config = [[AgoraRtcEngineConfig alloc] init] ;
-    config.appId = [KeyCenter AppId];
-    config.channelProfile = AgoraChannelProfileLiveBroadcasting;
-    config.audioScenario = AgoraAudioScenarioGameStreaming;
-    config.areaCode = AgoraAreaCodeTypeGlobal;
-    self.agoraKit = [AgoraRtcEngineKit sharedEngineWithConfig:config delegate:self];
+//    AgoraRtcEngineConfig * config = [[AgoraRtcEngineConfig alloc] init] ;
+//    config.appId = [KeyCenter AppId];
+//    config.channelProfile = AgoraChannelProfileLiveBroadcasting;
+//    config.audioScenario = AgoraAudioScenarioGameStreaming;
+//    config.areaCode = AgoraAreaCodeTypeGlobal;
+//    self.agoraKit = [AgoraRtcEngineKit sharedEngineWithConfig:config delegate:self];
     
-//    self.agoraKit = [AgoraRtcEngineKit sharedEngineWithAppId:[KeyCenter AppId] delegate:self];
-//    [self.agoraKit setChannelProfile:AgoraChannelProfileLiveBroadcasting];
-    
+    self.agoraKit = [AgoraRtcEngineKit sharedEngineWithAppId:[KeyCenter AppId] delegate:self];
+    [self.agoraKit setChannelProfile:AgoraChannelProfileLiveBroadcasting];
+        [self.agoraKit setAudioProfile:AgoraAudioProfileMusicStandardStereo scenario:AgoraAudioScenarioGameStreaming];
     AgoraClientRole role;
     
     switch (self.roleType) {
@@ -91,16 +148,17 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
             break;
     }
     [self.agoraKit setClientRole:role];
-//    [self.agoraKit setAudioProfile:AgoraAudioProfileMusicStandardStereo scenario:AgoraAudioScenarioGameStreaming];
+
 //    [self.agoraKit setAudioProfile:AgoraAudioProfileMusicStandardStereo scenario:AgoraAudioScenarioGameStreaming];
 //    [self.agoraKit setAudioProfile:AgoraAudioProfileMusicStandardStereo];
 //    [self.agoraKit setEnableSpeakerphone:YES];
     [self.agoraKit setDefaultAudioRouteToSpeakerphone:YES];
-//    [self.agoraKit setMixedAudioFrameParametersWithSampleRate:44100 channel:1 samplesPerCall:4410];
-    [self.agoraKit setMixedAudioFrameParametersWithSampleRate:48000 channel:2 samplesPerCall:480];
-    [self.agoraKit setRecordingAudioFrameParametersWithSampleRate:48000 channel:2 mode:0 samplesPerCall:480];
+//    [self.agoraKit setMixedAudioFrameParametersWithSampleRate:48000 channel:2 samplesPerCall:480];
+//    [self.agoraKit setMixedAudioFrameParametersWithSampleRate:48000 channel:2 samplesPerCall:480];
+//    [self.agoraKit setRecordingAudioFrameParametersWithSampleRate:48000 channel:2 mode:0 samplesPerCall:480];
+//    [self.agoraKit setPlaybackAudioFrameParametersWithSampleRate:48000 channel:2 mode:0 samplesPerCall:480];
     
-    self.agoraMediaDataPlugin = [AgoraMediaDataPlugin mediaDataPluginWithAgoraKit:self.agoraKit];
+//    self.agoraMediaDataPlugin = [AgoraMediaDataPlugin mediaDataPluginWithAgoraKit:self.agoraKit];
     
     [self.agoraKit enableAudioVolumeIndication:200 smooth:3];
     [self.agoraKit joinChannelByToken:nil channelId:self.channelName info:nil uid:0 joinSuccess:nil];
@@ -124,7 +182,7 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
     [self.agoraKit leaveChannel:^(AgoraChannelStats * _Nonnull stat) {
         [weakself dismissViewControllerAnimated:YES completion:nil];
     }];
-    [self stopRecordPCM:AgoraSDKRawDataType_OnRecord];
+//    [self stopRecordPCM:AgoraSDKRawDataType_PlayBack];
 }
 
 - (IBAction)clickSpeakerButton:(UIButton *)sender {
@@ -203,7 +261,8 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
 - (void)rtcEngine:(AgoraRtcEngineKit *)engine didJoinChannel:(NSString*)channel withUid:(NSUInteger)uid elapsed:(NSInteger) elapsed {
     [self appendInfoToTableViewWithInfo:[NSString stringWithFormat:@"Self join channel with uid:%zd", uid]];
 //    [self.agoraKit setDefaultAudioRouteToSpeakerphone:YES];
-    [self startRecordPCM:AgoraSDKRawDataType_OnRecord];
+//    [self startRecordPCM:AgoraSDKRawDataType_OnRecord];
+//    [self startRecordPCM:AgoraSDKRawDataType_PlayBack];
 }
 
 - (void)rtcEngine:(AgoraRtcEngineKit *)engine didJoinedOfUid:(NSUInteger)uid elapsed:(NSInteger)elapsed {
@@ -306,7 +365,7 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
 #pragma mark-
 - (void )rtcEngine:(AgoraRtcEngineKit *)engine reportAudioVolumeIndicationOfSpeakers:(NSArray<AgoraRtcAudioVolumeInfo *> *)speakers totalVolume:(NSInteger)totalVolume {
     for(AgoraRtcAudioVolumeInfo *speaker in speakers) {
-        NSLog(@"speakers : uid %ld , volume , %ld ",speaker.uid, speaker.volume);
+//        NSLog(@"speakers : uid %ld , volume , %ld ",speaker.uid, speaker.volume);
     }
 }
 
@@ -429,16 +488,19 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
     switch (agoraSDKRawDataType) {
            case AgoraSDKRawDataType_OnRecord :
                fclose(fp_OnRecord_pcm);
-//            [self convertPcmToWav:@"/onRecord.pcm"];
+            [self convertPcmToWav:@"/onRecord.pcm"];
                break;
            case AgoraSDKRawDataType_OnMixed:
                fclose(fp_OnMixed_pcm);
+            [self convertPcmToWav:@"/onMixed.pcm"];
                break;
            case AgoraSDKRawDataType_PlayBack:
               fclose(fp_PlayBack_pcm);
+            [self convertPcmToWav:@"/onPlayBack.pcm"];
                break;
            case AgoraSDKRawDataType_PlayBackBeforeMixing:
               fclose(fp_PlayBackBeforeMixing_pcm);
+            [self convertPcmToWav:@"/onPlayBackBeforeMixing.pcm"];
                break;
            default:
                break;
@@ -458,5 +520,57 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
         NSLog(@"pcm convert to wav failed");
     }
 }
+- (IBAction)dumpOnRecordPcm:(UIButton *)sender {
+    self.isDumpRecordPcm = !self.isDumpRecordPcm;
+       if(self.isDumpRecordPcm) {
+           [self.agoraKit setRecordingAudioFrameParametersWithSampleRate:48000 channel:2 mode:0 samplesPerCall:480];
+           self.agoraMediaDataPlugin = [AgoraMediaDataPlugin mediaDataPluginWithAgoraKit:self.agoraKit];
+           [self startRecordPCM:AgoraSDKRawDataType_OnRecord];
+           [sender setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+       } else {
+           [self stopRecordPCM:AgoraSDKRawDataType_OnRecord];
+           [sender setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+       }
+}
+
+- (IBAction)dumpPlayBackPcm:(UIButton *)sender {
+    self.isDumpPlayBackPcm = !self.isDumpPlayBackPcm;
+          if(self.isDumpPlayBackPcm) {
+              [self.agoraKit setPlaybackAudioFrameParametersWithSampleRate:48000 channel:2 mode:0 samplesPerCall:480];
+              self.agoraMediaDataPlugin = [AgoraMediaDataPlugin mediaDataPluginWithAgoraKit:self.agoraKit];
+              [self startRecordPCM:AgoraSDKRawDataType_PlayBack];
+              [sender setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+          } else {
+              [self stopRecordPCM:AgoraSDKRawDataType_PlayBack];
+              [sender setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+          }
+}
+
+- (IBAction)dumpOnMixedPcm:(UIButton *)sender {
+    self.isDumpOnMixedPcm = !self.isDumpOnMixedPcm;
+          if(self.isDumpOnMixedPcm) {
+              [self.agoraKit setMixedAudioFrameParametersWithSampleRate:48000 channel:2 samplesPerCall:480];
+              self.agoraMediaDataPlugin = [AgoraMediaDataPlugin mediaDataPluginWithAgoraKit:self.agoraKit];
+              [self startRecordPCM:AgoraSDKRawDataType_OnMixed];
+              [sender setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+          } else {
+             [self stopRecordPCM:AgoraSDKRawDataType_OnMixed];
+              [sender setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+          }
+}
+
+- (IBAction)dumpPlayBackBeforeMixing:(UIButton *)sender {
+    self.isDumpPlayBackBeforeMixing = !self.isDumpPlayBackBeforeMixing;
+          if(self.isDumpPlayBackBeforeMixing) {
+              [self.agoraKit setPlaybackAudioFrameBeforeMixingParametersWithSampleRate:48000 channel:2];
+              self.agoraMediaDataPlugin = [AgoraMediaDataPlugin mediaDataPluginWithAgoraKit:self.agoraKit];
+              [self startRecordPCM:AgoraSDKRawDataType_PlayBackBeforeMixing];
+              [sender setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+          } else {
+              [self stopRecordPCM:AgoraSDKRawDataType_PlayBackBeforeMixing];
+              [sender setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+          }
+}
+
 
 @end

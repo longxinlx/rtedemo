@@ -30,6 +30,7 @@
 		A7D6139D1F7DE06C0033A5CC /* InfoModel.m in Sources */ = {isa = PBXBuildFile; fileRef = A7D6139B1F7DE06C0033A5CC /* InfoModel.m */; };
 		F103098824ADEC8B0077C4DD /* AgoraRtcKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F103098624ADEC5D0077C4DD /* AgoraRtcKit.framework */; };
 		F103098924ADEC8B0077C4DD /* AgoraRtcKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F103098624ADEC5D0077C4DD /* AgoraRtcKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F1384C5424CB2AC600D71211 /* test.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = F1384C5324CB2AC600D71211 /* test.mp4 */; };
 		F13880C724B86E48007DEEB8 /* AgoraMediaDataPlugin.mm in Sources */ = {isa = PBXBuildFile; fileRef = F13880C124B86E48007DEEB8 /* AgoraMediaDataPlugin.mm */; };
 		F13880C824B86E48007DEEB8 /* AgoraAudioRawData.m in Sources */ = {isa = PBXBuildFile; fileRef = F13880C224B86E48007DEEB8 /* AgoraAudioRawData.m */; };
 		F13880CF24B8962C007DEEB8 /* wav_pcm_file_writer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F13880CB24B8962C007DEEB8 /* wav_pcm_file_writer.cpp */; };
@@ -88,6 +89,7 @@
 		A7D6139B1F7DE06C0033A5CC /* InfoModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InfoModel.m; sourceTree = "<group>"; };
 		A7D613B51F7DE8590033A5CC /* Define.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Define.h; sourceTree = "<group>"; };
 		F103098624ADEC5D0077C4DD /* AgoraRtcKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AgoraRtcKit.framework; sourceTree = "<group>"; };
+		F1384C5324CB2AC600D71211 /* test.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = test.mp4; sourceTree = "<group>"; };
 		F13880C124B86E48007DEEB8 /* AgoraMediaDataPlugin.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AgoraMediaDataPlugin.mm; sourceTree = "<group>"; };
 		F13880C224B86E48007DEEB8 /* AgoraAudioRawData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AgoraAudioRawData.m; sourceTree = "<group>"; };
 		F13880C424B86E48007DEEB8 /* AgoraMediaDataPlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AgoraMediaDataPlugin.h; sourceTree = "<group>"; };
@@ -209,6 +211,7 @@
 		A7D6134D1F7DDEE60033A5CC /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				F1384C5324CB2AC600D71211 /* test.mp4 */,
 				F1CC156B24AC947000215BB4 /* audio_leftbigrightsmall.wav */,
 				F1CC156924AC877F00215BB4 /* testeffect.mp3 */,
 				A7D613591F7DDEE60033A5CC /* Assets.xcassets */,
@@ -310,6 +313,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A7D613811F7DDFC00033A5CC /* Main.storyboard in Resources */,
+				F1384C5424CB2AC600D71211 /* test.mp4 in Resources */,
 				F1CC156C24AC947100215BB4 /* audio_leftbigrightsmall.wav in Resources */,
 				F1CC156A24AC877F00215BB4 /* testeffect.mp3 in Resources */,
 				A7D6135D1F7DDEE60033A5CC /* LaunchScreen.storyboard in Resources */,
@@ -483,7 +487,7 @@
 				);
 				GCC_PREFIX_HEADER = "";
 				INFOPLIST_FILE = "OpenLive-Voice-Only-iOS-Objective-C/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -513,7 +517,7 @@
 				);
 				GCC_PREFIX_HEADER = "";
 				INFOPLIST_FILE = "OpenLive-Voice-Only-iOS-Objective-C/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
