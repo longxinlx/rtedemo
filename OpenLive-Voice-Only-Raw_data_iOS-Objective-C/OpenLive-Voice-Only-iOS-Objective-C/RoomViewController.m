@@ -66,44 +66,46 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
     self.isDumpPlayBackPcm = NO;
     self.isDumpOnMixedPcm = NO;
     self.isDumpPlayBackBeforeMixing = NO;
-    
-    //网络视频播放
-//      NSString *playString = @"http://static.tripbe.com/videofiles/20121214/9533522808.f4v.mp4";
-//      NSURL *url = [NSURL URLWithString:playString];
-    
-    NSString *path = [[NSBundle mainBundle]pathForResource:@"test" ofType:@"mp4"];
-    NSLog(@"path is %@",path);
-    NSURL *url = [NSURL fileURLWithPath:path];
-    //设置播放的项目
-    AVPlayerItem *item = [[AVPlayerItem alloc] initWithURL:url];
-    //初始化player对象
-    self.avPlayer = [[AVPlayer alloc] initWithPlayerItem:item];
-    //设置播放页面
-    AVPlayerLayer *layer = [AVPlayerLayer playerLayerWithPlayer:_avPlayer];
-    //设置播放页面的大小
-    layer.frame = CGRectMake(0, 55, [UIScreen mainScreen].bounds.size.width, 155);
-    layer.backgroundColor = [UIColor cyanColor].CGColor;
-    //设置播放窗口和当前视图之间的比例显示内容
-    //1.保持纵横比；适合层范围内
-    //2.保持纵横比；填充层边界
-    //3.拉伸填充层边界
-    /*
-    第1种AVLayerVideoGravityResizeAspect是按原视频比例显示，是竖屏的就显示出竖屏的，两边留黑；
-    第2种AVLayerVideoGravityResizeAspectFill是以原比例拉伸视频，直到两边屏幕都占满，但视频内容有部分就被切割了；
-    第3种AVLayerVideoGravityResize是拉伸视频内容达到边框占满，但不按原比例拉伸，这里明显可以看出宽度被拉伸了。
-     */
-    layer.videoGravity = AVLayerVideoGravityResizeAspect;
-    //添加播放视图到self.view
-    [self.view.layer addSublayer:layer];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackFinished:) name:AVPlayerItemDidPlayToEndTimeNotification object:self.avPlayer.currentItem];
-    
-    //视频播放
-    [self.avPlayer setVolume:0];
-    [self.avPlayer play];
+    //default not play local Mp4 file
+//    [self initAndPlay];
 }
 
-#pragma mark - playBackFinished
+#pragma mark - Use AvPlayer play no audiotrack mp4 file
+
+- (void) initAndPlay {
+        //网络视频播放
+    //      NSString *playString = @"http://static.tripbe.com/videofiles/20121214/9533522808.f4v.mp4";
+    //      NSURL *url = [NSURL URLWithString:playString];
+        NSString *path = [[NSBundle mainBundle]pathForResource:@"test" ofType:@"mp4"];
+        NSLog(@"path is %@",path);
+        NSURL *url = [NSURL fileURLWithPath:path];
+        //设置播放的项目
+        AVPlayerItem *item = [[AVPlayerItem alloc] initWithURL:url];
+        //初始化player对象
+        self.avPlayer = [[AVPlayer alloc] initWithPlayerItem:item];
+        //设置播放页面
+        AVPlayerLayer *layer = [AVPlayerLayer playerLayerWithPlayer:_avPlayer];
+        //设置播放页面的大小
+        layer.frame = CGRectMake(0, 55, [UIScreen mainScreen].bounds.size.width, 155);
+        layer.backgroundColor = [UIColor cyanColor].CGColor;
+        //设置播放窗口和当前视图之间的比例显示内容
+        //1.保持纵横比；适合层范围内
+        //2.保持纵横比；填充层边界
+        //3.拉伸填充层边界
+        /*
+        第1种AVLayerVideoGravityResizeAspect是按原视频比例显示，是竖屏的就显示出竖屏的，两边留黑；
+        第2种AVLayerVideoGravityResizeAspectFill是以原比例拉伸视频，直到两边屏幕都占满，但视频内容有部分就被切割了；
+        第3种AVLayerVideoGravityResize是拉伸视频内容达到边框占满，但不按原比例拉伸，这里明显可以看出宽度被拉伸了。
+         */
+        layer.videoGravity = AVLayerVideoGravityResizeAspect;
+        //添加播放视图到self.view
+        [self.view.layer addSublayer:layer];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackFinished:) name:AVPlayerItemDidPlayToEndTimeNotification object:self.avPlayer.currentItem];
+        //视频播放
+        [self.avPlayer setVolume:0];
+        [self.avPlayer play];
+}
+
 -(void)playbackFinished:(NSNotification*)noti{
     
     [self.avPlayer seekToTime:CMTimeMake(0, 1)];
