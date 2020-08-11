@@ -12,4 +12,8 @@
     <item name="onMixed" type="id" />
     <item name="EarMonitoring" type="id" />
     <item name="mutemic" type="id" />
+    <item name="disableAudio" type="id" />
+    <item name="enableLocalAudio" type="id" />
+    <item name="playBack" type="id" />
+    <item name="playBackBeforemixing" type="id" />
 </resources>

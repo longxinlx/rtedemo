@@ -28,6 +28,7 @@
 @property (assign, nonatomic) BOOL isPlayEffect;
 @property (assign, nonatomic) BOOL isPublishMic;
 @property (assign, nonatomic) BOOL isMuteRecordingSignal;
+@property (assign, nonatomic) BOOL isEnableLocalAudio;
 @property (assign, nonatomic) BOOL isDumpRecordPcm;
 @property (assign, nonatomic) BOOL isDumpPlayBackPcm;
 @property (assign, nonatomic) BOOL isDumpOnMixedPcm;
@@ -60,6 +61,7 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
     self.needWritePCM = YES;
     self.isStartAudioMixing = NO;
     self.isMuteRecordingSignal = NO;
+    self.isEnableLocalAudio = YES;
     self.isPublishMic = YES;
     self.isPlayEffect = NO;
     self.isDumpRecordPcm = NO;
@@ -124,16 +126,17 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
 #pragma mark- initAgoraKit
 - (void)loadAgoraKit {
 
-//    AgoraRtcEngineConfig * config = [[AgoraRtcEngineConfig alloc] init] ;
-//    config.appId = [KeyCenter AppId];
-//    config.channelProfile = AgoraChannelProfileLiveBroadcasting;
-//    config.audioScenario = AgoraAudioScenarioGameStreaming;
-//    config.areaCode = AgoraAreaCodeTypeGlobal;
-//    self.agoraKit = [AgoraRtcEngineKit sharedEngineWithConfig:config delegate:self];
+    AgoraRtcEngineConfig * config = [[AgoraRtcEngineConfig alloc] init] ;
+    config.appId = [KeyCenter AppId];
+    config.channelProfile = AgoraChannelProfileLiveBroadcasting;
+    config.audioScenario = AgoraAudioScenarioGameStreaming;
+    config.areaCode = AgoraAreaCodeTypeGlobal;
+    self.agoraKit = [AgoraRtcEngineKit sharedEngineWithConfig:config delegate:self];
     
-    self.agoraKit = [AgoraRtcEngineKit sharedEngineWithAppId:[KeyCenter AppId] delegate:self];
-    [self.agoraKit setChannelProfile:AgoraChannelProfileLiveBroadcasting];
-        [self.agoraKit setAudioProfile:AgoraAudioProfileMusicStandardStereo scenario:AgoraAudioScenarioGameStreaming];
+//    self.agoraKit = [AgoraRtcEngineKit sharedEngineWithAppId:[KeyCenter AppId] delegate:self];
+//    [self.agoraKit setChannelProfile:AgoraChannelProfileLiveBroadcasting];
+//        [self.agoraKit setAudioProfile:AgoraAudioProfileMusicStandardStereo scenario:AgoraAudioScenarioGameStreaming];
+    
     AgoraClientRole role;
     
     switch (self.roleType) {
@@ -160,7 +163,7 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
 //    [self.agoraKit setRecordingAudioFrameParametersWithSampleRate:48000 channel:2 mode:0 samplesPerCall:480];
 //    [self.agoraKit setPlaybackAudioFrameParametersWithSampleRate:48000 channel:2 mode:0 samplesPerCall:480];
     
-//    self.agoraMediaDataPlugin = [AgoraMediaDataPlugin mediaDataPluginWithAgoraKit:self.agoraKit];
+    self.agoraMediaDataPlugin = [AgoraMediaDataPlugin mediaDataPluginWithAgoraKit:self.agoraKit];
     
     [self.agoraKit enableAudioVolumeIndication:200 smooth:3];
     [self.agoraKit joinChannelByToken:nil channelId:self.channelName info:nil uid:0 joinSuccess:nil];
@@ -184,6 +187,7 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
     [self.agoraKit leaveChannel:^(AgoraChannelStats * _Nonnull stat) {
         [weakself dismissViewControllerAnimated:YES completion:nil];
     }];
+    self.agoraMediaDataPlugin = nil;
 //    [self stopRecordPCM:AgoraSDKRawDataType_PlayBack];
 }
 
@@ -258,6 +262,17 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
     }
     
 }
+- (IBAction)enableLocalAudio:(UIButton *)sender {
+        self.isEnableLocalAudio = !self.isEnableLocalAudio;
+       if(self.isEnableLocalAudio) {
+           [self.agoraKit enableLocalAudio:YES];
+           [sender setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+       } else {
+           [self.agoraKit enableLocalAudio:NO];
+           [sender setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+       }
+    
+}
 
 #pragma mark- <AgoraRtcEngineDelegate>
 - (void)rtcEngine:(AgoraRtcEngineKit *)engine didJoinChannel:(NSString*)channel withUid:(NSUInteger)uid elapsed:(NSInteger) elapsed {
@@ -265,10 +280,12 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
 //    [self.agoraKit setDefaultAudioRouteToSpeakerphone:YES];
 //    [self startRecordPCM:AgoraSDKRawDataType_OnRecord];
 //    [self startRecordPCM:AgoraSDKRawDataType_PlayBack];
+    NSLog(@"didJoinChannel uid: %lu",uid);
 }
 
 - (void)rtcEngine:(AgoraRtcEngineKit *)engine didJoinedOfUid:(NSUInteger)uid elapsed:(NSInteger)elapsed {
     [self appendInfoToTableViewWithInfo:[NSString stringWithFormat:@"Uid:%zd joined channel with elapsed:%zd", uid, elapsed]];
+    NSLog(@"didJoinedOfUid uid: %lu",uid);
 }
 
 - (void)rtcEngineConnectionDidInterrupted:(AgoraRtcEngineKit *)engine {
@@ -285,6 +302,7 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
 
 - (void)rtcEngine:(AgoraRtcEngineKit *)engine didOfflineOfUid:(NSUInteger)uid reason:(AgoraUserOfflineReason)reason {
     [self appendInfoToTableViewWithInfo:[NSString stringWithFormat:@"Uid:%zd didOffline reason:%zd", uid, reason]];
+    NSLog(@"didOfflineOfUid uid: %lu",uid);
 }
 
 - (void)rtcEngine:(AgoraRtcEngineKit *)engine didAudioRouteChanged:(AgoraAudioOutputRouting)routing {
@@ -329,6 +347,11 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
         [self appendInfoToTableViewWithInfo:@"Self changed to Audience"];
     }
 }
+
+- (void)rtcEngine:(AgoraRtcEngineKit *)engine connectionStateChanged:(AgoraConnectionState)state reason:(AgoraConnectionChangedReason)reason{
+    NSLog(@"state: %ld, reason: %ld",state,reason);
+}
+
 
 #pragma mark- <UITableViewDataSource>
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -380,7 +403,7 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
            size_t writeBytes = audioRawData.samplesPerChannel * audioRawData.channels * sizeof(int16_t);
            success = fwrite(audioRawData.buffer, 1, writeBytes, fp_OnMixed_pcm);
        }
-       NSLog(@"success %ld",success);
+//       NSLog(@"success %ld",success);
 }
 
 - (void) mediaDataPlugin:(AgoraMediaDataPlugin *)mediaDataPlugin didRecordAudioRawData:(AgoraAudioRawData *)audioRawData
@@ -390,7 +413,7 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
         size_t writeBytes = audioRawData.samplesPerChannel * audioRawData.channels * sizeof(int16_t);
         success = fwrite(audioRawData.buffer, 1, writeBytes, fp_OnRecord_pcm);
     }
-    NSLog(@"success %ld",success);
+//    NSLog(@"success %ld",success);
 }
 
 - (void)mediaDataPlugin:(AgoraMediaDataPlugin *)mediaDataPlugin willPlaybackBeforeMixingAudioRawData:(AgoraAudioRawData *)audioRawData
@@ -400,7 +423,7 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
            size_t writeBytes = audioRawData.samplesPerChannel * audioRawData.channels * sizeof(int16_t);
            success = fwrite(audioRawData.buffer, 1, writeBytes, fp_PlayBackBeforeMixing_pcm);
        }
-       NSLog(@"success %ld",success);
+//       NSLog(@"success %ld",success);
 }
 
 - (void)mediaDataPlugin:(AgoraMediaDataPlugin *)mediaDataPlugin willPlaybackAudioRawData:(AgoraAudioRawData *)audioRawData
@@ -410,7 +433,7 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
            size_t writeBytes = audioRawData.samplesPerChannel * audioRawData.channels * sizeof(int16_t);
            success = fwrite(audioRawData.buffer, 1, writeBytes, fp_PlayBack_pcm);
        }
-       NSLog(@"success %ld",success);
+//       NSLog(@"success %ld",success);
 }
 
 -(void)startRecordPCM:(AgoraSDKRawDataType)agoraSDKRawDataType
@@ -517,7 +540,7 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
     
     BOOL isSuccess = [[PcmToWav shareInstance] pcm2Wav:docuPath isDeleteSourchFile:NO];
     if(isSuccess) {
-        NSLog(@"pcm convert to wav success");
+//        NSLog(@"pcm convert to wav success");
     } else {
         NSLog(@"pcm convert to wav failed");
     }
@@ -526,7 +549,7 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
     self.isDumpRecordPcm = !self.isDumpRecordPcm;
        if(self.isDumpRecordPcm) {
            [self.agoraKit setRecordingAudioFrameParametersWithSampleRate:48000 channel:2 mode:0 samplesPerCall:480];
-           self.agoraMediaDataPlugin = [AgoraMediaDataPlugin mediaDataPluginWithAgoraKit:self.agoraKit];
+//           self.agoraMediaDataPlugin = [AgoraMediaDataPlugin mediaDataPluginWithAgoraKit:self.agoraKit];
            [self startRecordPCM:AgoraSDKRawDataType_OnRecord];
            [sender setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
        } else {
@@ -539,7 +562,7 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
     self.isDumpPlayBackPcm = !self.isDumpPlayBackPcm;
           if(self.isDumpPlayBackPcm) {
               [self.agoraKit setPlaybackAudioFrameParametersWithSampleRate:48000 channel:2 mode:0 samplesPerCall:480];
-              self.agoraMediaDataPlugin = [AgoraMediaDataPlugin mediaDataPluginWithAgoraKit:self.agoraKit];
+//              self.agoraMediaDataPlugin = [AgoraMediaDataPlugin mediaDataPluginWithAgoraKit:self.agoraKit];
               [self startRecordPCM:AgoraSDKRawDataType_PlayBack];
               [sender setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
           } else {
@@ -552,7 +575,7 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
     self.isDumpOnMixedPcm = !self.isDumpOnMixedPcm;
           if(self.isDumpOnMixedPcm) {
               [self.agoraKit setMixedAudioFrameParametersWithSampleRate:48000 channel:2 samplesPerCall:480];
-              self.agoraMediaDataPlugin = [AgoraMediaDataPlugin mediaDataPluginWithAgoraKit:self.agoraKit];
+//              self.agoraMediaDataPlugin = [AgoraMediaDataPlugin mediaDataPluginWithAgoraKit:self.agoraKit];
               [self startRecordPCM:AgoraSDKRawDataType_OnMixed];
               [sender setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
           } else {
@@ -565,7 +588,7 @@ typedef NS_ENUM(int, AgoraSDKRawDataType) {
     self.isDumpPlayBackBeforeMixing = !self.isDumpPlayBackBeforeMixing;
           if(self.isDumpPlayBackBeforeMixing) {
               [self.agoraKit setPlaybackAudioFrameBeforeMixingParametersWithSampleRate:48000 channel:2];
-              self.agoraMediaDataPlugin = [AgoraMediaDataPlugin mediaDataPluginWithAgoraKit:self.agoraKit];
+//              self.agoraMediaDataPlugin = [AgoraMediaDataPlugin mediaDataPluginWithAgoraKit:self.agoraKit];
               [self startRecordPCM:AgoraSDKRawDataType_PlayBackBeforeMixing];
               [sender setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
           } else {

@@ -18,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.yiming.ym.util.YimingYmUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,13 +50,25 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
     private volatile boolean mKTV = false;
     private volatile boolean mOnRecord = false;
     private volatile boolean mOnMixed = false;
+    private volatile boolean mOnPlayBack = false;
+    private volatile boolean mOnPlayBackBeforeMixing = false;
     private volatile boolean mEar = false;
     public static String SDCARD_DIR;
     private RandomAccessFile randomAccessFileForOnRecord;
+    private RandomAccessFile randomAccessFileForOnRecordWAV;
     private RandomAccessFile randomAccessFileForOnMixed;
+    private RandomAccessFile randomAccessFileForOnMixedWAV;
+    private RandomAccessFile randomAccessFileForPlayBack;
+    private RandomAccessFile randomAccessFileForPlayBackWAV;
+    private RandomAccessFile randomAccessFileForPlayBackBeforeMixing;
+    private RandomAccessFile randomAccessFileForPlayBackBeforeMixingWAV;
     private boolean isRecording = false;
     private boolean isMixing = false;
+    private boolean isPlayBack = false;
+    private boolean isPlayBackBeforeMixing = false;
     private boolean isMuteMic = false;
+    private boolean isDiableAudio = false;
+    private boolean isEnableLocalAudio = false;
 
     private volatile int mAudioRouting = -1; // Default
 
@@ -432,6 +446,7 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
         if (mOnRecord) {
             iv.setTextColor(getResources().getColor(R.color.agora_blue));
             createPcmFile(RECORD_FILE);
+            createPcmFile(RECORD_FILE_WAV);
             worker().getRtcEngine().setRecordingAudioFrameParameters(48000 , 2, 0, 480);
             worker().getRtcEngine().registerAudioFrameObserver(this);
             isRecording = true;
@@ -457,7 +472,45 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
         } else {
             iv.setTextColor(getResources().getColor(R.color.dark_black));
             isMixing = false;
-            stopRecordDraft(LiveRoomActivity.ONMIXED_FILE);
+            stopOnMixedDraft(LiveRoomActivity.ONMIXED_FILE);
+            worker().getRtcEngine().registerAudioFrameObserver(null);
+        }
+    }
+
+    public void  onPlayBackClicked (View view) {
+        android.util.Log.v("longxin","onPlayBackClicked");
+
+        Button iv = (Button) view;
+        mOnPlayBack = !mOnPlayBack;
+        if (mOnPlayBack) {
+            iv.setTextColor(getResources().getColor(R.color.agora_blue));
+            createPcmFile(PLAYBACK_FILE);
+            worker().getRtcEngine().setPlaybackAudioFrameParameters(48000 , 2,0,480);
+            worker().getRtcEngine().registerAudioFrameObserver(this);
+            isPlayBack = true;
+        } else {
+            iv.setTextColor(getResources().getColor(R.color.dark_black));
+            isPlayBack = false;
+            stopOnPlayBackDraft(LiveRoomActivity.PLAYBACK_FILE);
+            worker().getRtcEngine().registerAudioFrameObserver(null);
+        }
+    }
+
+    public void  onPlayBackBeforeMixingClicked (View view) {
+        android.util.Log.v("longxin","onPlayBackBeforeMixingClicked");
+
+        Button iv = (Button) view;
+        mOnPlayBackBeforeMixing = !mOnPlayBackBeforeMixing;
+        if (mOnPlayBackBeforeMixing) {
+            iv.setTextColor(getResources().getColor(R.color.agora_blue));
+            createPcmFile(PLAYBACK_BEFORE_MIXING_FILE);
+            worker().getRtcEngine().setPlaybackAudioFrameBeforeMixingParameters(48000 ,2);
+            worker().getRtcEngine().registerAudioFrameObserver(this);
+            isPlayBackBeforeMixing = true;
+        } else {
+            iv.setTextColor(getResources().getColor(R.color.dark_black));
+            isPlayBackBeforeMixing = false;
+            stopOnPlayBackBeforemixingDraft(LiveRoomActivity.PLAYBACK_BEFORE_MIXING_FILE);
             worker().getRtcEngine().registerAudioFrameObserver(null);
         }
     }
@@ -487,6 +540,36 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
         } else {
             iv.setTextColor(getResources().getColor(R.color.dark_black));
             worker().getRtcEngine().adjustRecordingSignalVolume(100);
+        }
+    }
+
+    public void  onDisableAudioClicked (View view) {
+        android.util.Log.v("longxin","disableAudioClicked");
+
+        Button iv = (Button) view;
+        isDiableAudio = !isDiableAudio;
+        if (isDiableAudio) {
+            iv.setTextColor(getResources().getColor(R.color.agora_blue));
+            worker().getRtcEngine().disableAudio();
+        } else {
+            iv.setTextColor(getResources().getColor(R.color.dark_black));
+            worker().getRtcEngine().enableAudio();
+        }
+    }
+
+
+
+    public void  onEnableLocalAudioClicked (View view) {
+        android.util.Log.v("longxin","onEnableLocalAudioClicked");
+
+        Button iv = (Button) view;
+        isEnableLocalAudio = !isEnableLocalAudio;
+        if (isEnableLocalAudio) {
+            iv.setTextColor(getResources().getColor(R.color.agora_blue));
+            worker().getRtcEngine().enableLocalAudio(false);
+        } else {
+            iv.setTextColor(getResources().getColor(R.color.dark_black));
+            worker().getRtcEngine().enableLocalAudio(true);
         }
     }
 
@@ -574,7 +657,7 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
 //                    }
 
                     volumeCache.append("volume: ").append(peerUid & 0xFFFFFFFFL).append(" ").append(peerVolume).append("\n");
-                    android.util.Log.v("longxin","uid:"+ each.uid + " volume:"+each.volume);
+//                    android.util.Log.v("longxin","uid:"+ each.uid + " volume:"+each.volume);
                 }
 
                 if (volumeCache.length() > 0) {
@@ -637,21 +720,32 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
 
     @Override
     public boolean onPlaybackAudioFrame(int i, int i1, int i2, int i3, int i4, ByteBuffer byteBuffer, long l, int i5) {
-//        android.util.Log.v("longxin","onPlaybackAudioFrame");
+        startOnPlayBack(byteBuffer,LiveRoomActivity.PLAYBACK_FILE);
         return false;
     }
 
     @Override
     public boolean onMixedAudioFrame(int i, int i1, int i2, int i3, int i4, ByteBuffer byteBuffer, long l, int i5) {
-//        android.util.Log.v("longxin","onMixedAudioFrame");
-            startOnMixed(byteBuffer,ONMIXED_FILE);
+        startOnMixed(byteBuffer,LiveRoomActivity.ONMIXED_FILE);
+        return false;
+    }
+
+
+    @Override
+    public boolean onPlaybackAudioFrameBeforeMixing(int i, int i1, int i2, int i3, int i4, int i5, ByteBuffer byteBuffer, long l, int i6) {
+        startOnPlayBackBeforemixing(byteBuffer,LiveRoomActivity.PLAYBACK_BEFORE_MIXING_FILE);
         return false;
     }
 
     private static String RECORD_FILE = "testRecordSave.pcm";
+    private static String RECORD_FILE_WAV = "testRecordSave.wav";
     private static String PLAYBACK_FILE = "testPlayBackSave.pcm";
+    private static String PLAYBACK_FILE_WAV = "testPlayBackSave.wav";
     private static String PLAYBACK_BEFORE_MIXING_FILE = "testPlayBackBeforeMixingSave.pcm";
+    private static String PLAYBACK_BEFORE_MIXING_FILE_WAV = "testPlayBackBeforeMixingSave.wav";
     private static String ONMIXED_FILE = "testMixedSave.pcm";
+    private static String ONMIXED_FILE_WAV = "testMixedSave.wav";
+
     private void createPcmFile(String name){
 
         SDCARD_DIR = Environment.getExternalStorageDirectory().getAbsolutePath();
@@ -665,6 +759,26 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
                 randomAccessFileForOnRecord = new RandomAccessFile(tmpFile, "rw");
             } else if (LiveRoomActivity.ONMIXED_FILE.equals(name)) {
                 randomAccessFileForOnMixed = new RandomAccessFile(tmpFile, "rw");
+            } else if (LiveRoomActivity.PLAYBACK_FILE.equals(name)) {
+                randomAccessFileForPlayBack = new RandomAccessFile(tmpFile, "rw");
+            } else if (LiveRoomActivity.PLAYBACK_BEFORE_MIXING_FILE.equals(name)) {
+                randomAccessFileForPlayBackBeforeMixing = new RandomAccessFile(tmpFile, "rw");
+            } else if (LiveRoomActivity.RECORD_FILE_WAV.equals(name)) {
+                android.util.Log.v("longxin","YimingYmUtil.copyFile SDCARD_DIR :"+SDCARD_DIR);
+                YimingYmUtil.copyFile(new File(SDCARD_DIR,RECORD_FILE),SDCARD_DIR + "/" + RECORD_FILE_WAV);
+                randomAccessFileForOnRecordWAV = new RandomAccessFile(SDCARD_DIR + "/" +  RECORD_FILE_WAV, "rw");
+            } else if (LiveRoomActivity.ONMIXED_FILE_WAV.equals(name)) {
+                android.util.Log.v("longxin","YimingYmUtil.copyFile SDCARD_DIR :"+SDCARD_DIR);
+                YimingYmUtil.copyFile(new File(SDCARD_DIR,ONMIXED_FILE),SDCARD_DIR + "/" + ONMIXED_FILE_WAV);
+                randomAccessFileForOnMixedWAV = new RandomAccessFile(SDCARD_DIR + "/" +  ONMIXED_FILE_WAV, "rw");
+            } else if (LiveRoomActivity.PLAYBACK_FILE_WAV.equals(name)) {
+                android.util.Log.v("longxin","YimingYmUtil.copyFile SDCARD_DIR :"+SDCARD_DIR);
+                YimingYmUtil.copyFile(new File(SDCARD_DIR,PLAYBACK_FILE),SDCARD_DIR + "/" + PLAYBACK_FILE_WAV);
+                randomAccessFileForPlayBackWAV = new RandomAccessFile(SDCARD_DIR + "/" +  PLAYBACK_FILE_WAV, "rw");
+            } else if (LiveRoomActivity.PLAYBACK_BEFORE_MIXING_FILE_WAV.equals(name)) {
+                android.util.Log.v("longxin","YimingYmUtil.copyFile SDCARD_DIR :"+SDCARD_DIR);
+                YimingYmUtil.copyFile(new File(SDCARD_DIR,RECORD_FILE),SDCARD_DIR + "/" + PLAYBACK_BEFORE_MIXING_FILE_WAV);
+                randomAccessFileForPlayBackBeforeMixingWAV = new RandomAccessFile(SDCARD_DIR + "/" +  PLAYBACK_BEFORE_MIXING_FILE_WAV, "rw");
             }
 
         } catch (FileNotFoundException e) {
@@ -687,6 +801,8 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
         try {
             if(LiveRoomActivity.RECORD_FILE.equals(name) && randomAccessFileForOnRecord != null) {
                 randomAccessFileForOnRecord.close();
+                createPcmFile(LiveRoomActivity.RECORD_FILE_WAV);
+                YimingYmUtil.fwritewav(randomAccessFileForOnRecordWAV);
             }
             isRecording = false;
         } catch (IOException e) {
@@ -709,6 +825,8 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
         try {
            if (LiveRoomActivity.ONMIXED_FILE.equals(name) && randomAccessFileForOnMixed != null) {
                 randomAccessFileForOnMixed.close();
+               createPcmFile(LiveRoomActivity.ONMIXED_FILE_WAV);
+               YimingYmUtil.fwritewav(randomAccessFileForOnMixedWAV);
             }
             isMixing = false;
         } catch (IOException e) {
@@ -716,6 +834,53 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
         }
     }
 
+    private void startOnPlayBack(ByteBuffer byteBuffer,String name) {
+        if (isPlayBack) {
+            try {
+                if (LiveRoomActivity.PLAYBACK_FILE.equals(name)) {
+                    randomAccessFileForPlayBack.write(bytebuffer2ByteArray(byteBuffer));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private void stopOnPlayBackDraft(String name) {//演绎结束后调用，记录当前演绎信息
+        try {
+            if (LiveRoomActivity.PLAYBACK_FILE.equals(name) && randomAccessFileForPlayBack != null) {
+                randomAccessFileForPlayBack.close();
+                createPcmFile(LiveRoomActivity.PLAYBACK_FILE_WAV);
+                YimingYmUtil.fwritewav(randomAccessFileForPlayBackWAV);
+            }
+            isPlayBack = false;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void startOnPlayBackBeforemixing(ByteBuffer byteBuffer,String name) {
+        if (isPlayBackBeforeMixing) {
+            try {
+                if (LiveRoomActivity.PLAYBACK_BEFORE_MIXING_FILE.equals(name)) {
+                    randomAccessFileForPlayBackBeforeMixing.write(bytebuffer2ByteArray(byteBuffer));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private void stopOnPlayBackBeforemixingDraft(String name) {//演绎结束后调用，记录当前演绎信息
+        try {
+            if (LiveRoomActivity.PLAYBACK_BEFORE_MIXING_FILE.equals(name) && randomAccessFileForPlayBackBeforeMixing != null) {
+                randomAccessFileForPlayBackBeforeMixing.close();
+                createPcmFile(LiveRoomActivity.PLAYBACK_BEFORE_MIXING_FILE_WAV);
+                YimingYmUtil.fwritewav(randomAccessFileForPlayBackBeforeMixingWAV);
+            }
+            isPlayBackBeforeMixing = false;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public static byte[] bytebuffer2ByteArray(ByteBuffer buffer) {
         int len = buffer.limit() - buffer.position();
         byte[] bytes = new byte[len];
@@ -723,13 +888,4 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler ,IA
         Log.e("AgoraManager", bytes.length + "");
         return bytes;
     }
-
-    @Override
-    public boolean onPlaybackAudioFrameBeforeMixing(int i, int i1, int i2, int i3, int i4, int i5, ByteBuffer byteBuffer, long l, int i6) {
-//        android.util.Log.v("longxin","onPlaybackAudioFrameBeforeMixing");
-        return false;
-    }
-
-
-
 }

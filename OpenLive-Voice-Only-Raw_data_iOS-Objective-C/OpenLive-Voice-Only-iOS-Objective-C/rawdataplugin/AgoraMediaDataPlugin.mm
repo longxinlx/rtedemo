@@ -43,9 +43,10 @@ public:
     {
         @synchronized(mediaDataPlugin) {
             @autoreleasepool {
-                NSLog(@"------------onRecordAudioFrame----------------");
+                
                 if (!mediaDataPlugin) return true;
                 if ([mediaDataPlugin.audioDelegate respondsToSelector:@selector(mediaDataPlugin:didRecordAudioRawData:)]) {
+//                    NSLog(@"------------onRecordAudioFrame----------------");
                     AgoraAudioRawData *data = getAudioRawDataWithAudioFrame(audioFrame);
                    [mediaDataPlugin.audioDelegate mediaDataPlugin:mediaDataPlugin didRecordAudioRawData:data];
                 }
@@ -58,9 +59,10 @@ public:
     {
         @synchronized(mediaDataPlugin) {
             @autoreleasepool {
-                NSLog(@"------------onPlaybackAudioFrame----------------");
+               
                 if (!mediaDataPlugin) return true;
                 if ([mediaDataPlugin.audioDelegate respondsToSelector:@selector(mediaDataPlugin:willPlaybackAudioRawData:)]) {
+//                     NSLog(@"------------onPlaybackAudioFrame----------------");
                     AgoraAudioRawData *data = getAudioRawDataWithAudioFrame(audioFrame);
                     [mediaDataPlugin.audioDelegate mediaDataPlugin:mediaDataPlugin willPlaybackAudioRawData:data];
                 }
@@ -73,9 +75,10 @@ public:
     {
         @synchronized(mediaDataPlugin) {
             @autoreleasepool {
-                NSLog(@"------------onPlaybackAudioFrameBeforeMixing----------------");
+                
                 if (!mediaDataPlugin) return true;
                 if ([mediaDataPlugin.audioDelegate respondsToSelector:@selector(mediaDataPlugin:willPlaybackBeforeMixingAudioRawData:)]) {
+//                    NSLog(@"------------onPlaybackAudioFrameBeforeMixing----------------");
                     AgoraAudioRawData *data = getAudioRawDataWithAudioFrame(audioFrame);
                     [mediaDataPlugin.audioDelegate mediaDataPlugin:mediaDataPlugin willPlaybackBeforeMixingAudioRawData:data];
                 }
@@ -88,9 +91,10 @@ public:
     {
         @synchronized(mediaDataPlugin) {
             @autoreleasepool {
-                NSLog(@"------------onMixedAudioFrame----------------");
+                
                 if (!mediaDataPlugin) return true;
                 if ([mediaDataPlugin.audioDelegate respondsToSelector:@selector(mediaDataPlugin:didMixedAudioRawData:)]) {
+//                    NSLog(@"------------onMixedAudioFrame----------------");
                     AgoraAudioRawData *data = getAudioRawDataWithAudioFrame(audioFrame);
                     [mediaDataPlugin.audioDelegate mediaDataPlugin:mediaDataPlugin didMixedAudioRawData:data];
                 }
@@ -100,11 +104,38 @@ public:
     }
 };
 
-//static AgoraAudioFrameObserver* s_audioFrameObserver;
 static AgoraAudioFrameObserver s_audioFrameObserver;
 
 @implementation AgoraMediaDataPlugin
     
+- (void)registerAudioVideoObserver {
+    agora::rtc::IRtcEngine* rtc_engine = (agora::rtc::IRtcEngine*)self.agoraKit.getNativeHandle;
+    agora::util::AutoPtr<agora::media::IMediaEngine> mediaEngine;
+    if(!mediaEngine) {
+        mediaEngine.queryInterface(rtc_engine, agora::rtc::AGORA_IID_MEDIA_ENGINE);
+    }
+    
+    if (mediaEngine)
+    {
+        mediaEngine->registerAudioFrameObserver(&s_audioFrameObserver);
+        s_audioFrameObserver.mediaDataPlugin = self;
+    }
+}
+
+- (void)unregisterAudioVideoObserver {
+    agora::rtc::IRtcEngine* rtc_engine = (agora::rtc::IRtcEngine*)self.agoraKit.getNativeHandle;
+    agora::util::AutoPtr<agora::media::IMediaEngine> mediaEngine;
+    if(!mediaEngine) {
+        mediaEngine.queryInterface(rtc_engine, agora::rtc::AGORA_IID_MEDIA_ENGINE);
+    }
+    
+    if (mediaEngine)
+    {
+        mediaEngine->registerAudioFrameObserver(NULL);
+        s_audioFrameObserver.mediaDataPlugin = nil;
+    }
+}
+
 + (instancetype)mediaDataPluginWithAgoraKit:(AgoraRtcEngineKit *)agoraKit {
     AgoraMediaDataPlugin *source = [[AgoraMediaDataPlugin alloc] init];
     source.agoraKit = agoraKit;
@@ -124,7 +155,6 @@ static AgoraAudioFrameObserver s_audioFrameObserver;
     }
 }
 
-
 - (void)startAudioRawDataCallback {
     [self registerAudioVideoObserver];
 }
@@ -133,33 +163,5 @@ static AgoraAudioFrameObserver s_audioFrameObserver;
     [self unregisterAudioVideoObserver];
 }
 
-- (void)registerAudioVideoObserver {
-    agora::rtc::IRtcEngine* rtc_engine = (agora::rtc::IRtcEngine*)self.agoraKit.getNativeHandle;
-    agora::media::IMediaEngine *mediaEngine;
-    rtc_engine->queryInterface(agora::rtc::AGORA_IID_MEDIA_ENGINE, reinterpret_cast<void**>(&mediaEngine));
-    if (mediaEngine)
-    {
-        NSLog(@"mediaEngine->registerAudioFrameObserver(&s_audioFrameObserver)");
-//        s_audioFrameObserver = new AgoraAudioFrameObserver();
-//        mediaEngine->registerAudioFrameObserver(s_audioFrameObserver);
-        mediaEngine->registerAudioFrameObserver(&s_audioFrameObserver);
-        s_audioFrameObserver.mediaDataPlugin = self;
-    }
-}
 
-- (void)unregisterAudioVideoObserver {
-    agora::rtc::IRtcEngine* rtc_engine = (agora::rtc::IRtcEngine*)self.agoraKit.getNativeHandle;
-    agora::media::IMediaEngine *mediaEngine;
-    rtc_engine->queryInterface(agora::rtc::AGORA_IID_MEDIA_ENGINE, reinterpret_cast<void**>(&mediaEngine));
-    if (mediaEngine)
-    {
-        NSLog(@"mediaEngine->registerAudioFrameObserver(NULL)");
-        mediaEngine->registerAudioFrameObserver(NULL);
-
-        s_audioFrameObserver.mediaDataPlugin = nil;
-//        free(&s_audioFrameObserver);//crash
-        //        s_audioFrameObserver -> mediaDataPlugin = nil;
-//        delete(s_audioFrameObserver);//crash
-    }
-}
 @end

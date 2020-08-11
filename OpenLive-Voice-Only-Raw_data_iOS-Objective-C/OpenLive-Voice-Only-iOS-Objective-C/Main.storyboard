@@ -260,6 +260,16 @@
                                             <action selector="dumpPlayBackBeforeMixing:" destination="DMb-WW-FgV" eventType="touchUpInside" id="HL8-jT-gS7"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="hJv-kN-Vqy" userLabel="enableLocalAudio">
+                                        <rect key="frame" x="0.0" y="137" width="147" height="42"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="enableLocalAudio">
+                                            <color key="titleColor" red="0.016804177310000001" green="0.19835099580000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="enableLocalAudio:" destination="DMb-WW-FgV" eventType="touchUpInside" id="fZg-Wp-C48"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>

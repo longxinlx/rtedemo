@@ -124,76 +124,41 @@
             android:orientation="vertical">
 
             <Button
-                android:id="@id/audioMixing"
+                android:id="@id/disableAudio"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:scaleType="center"
-                android:text="test1"
+                android:text="disableAudio"
+                android:onClick="onDisableAudioClicked"
                 android:textColor="@color/dark_black"/>
 
             <Button
-                android:id="@id/playeffect"
+                android:id="@id/enableLocalAudio"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:scaleType="center"
-                android:text="test1"
+                android:text="enableLocalAudio"
+                android:onClick="onEnableLocalAudioClicked"
                 android:textColor="@color/dark_black"/>
 
             <Button
-                android:id="@id/ktv"
+                android:id="@id/playBack"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:scaleType="center"
-                android:text="test3"
+                android:text="playback"
+                android:onClick="onPlayBackClicked"
                 android:textColor="@color/dark_black"/>
 
             <Button
-                android:id="@id/onRecord"
+                android:id="@id/playBackBeforemixing"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:scaleType="center"
-                android:text="test4"
+                android:text="playbackbeforemixing"
+                android:onClick="onPlayBackBeforeMixingClicked"
                 android:textColor="@color/dark_black"/>
 
-            <Button
-                android:id="@id/onMixed"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:scaleType="center"
-                android:text="test5"
-                android:textColor="@color/dark_black"/>
-
-            <Button
-                android:id="@id/EarMonitoring"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:scaleType="center"
-                android:text="test6"
-                android:textColor="@color/dark_black"/>
-
-            <Button
-                android:id="@id/mutemic"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:scaleType="center"
-                android:text="test7"
-                android:textColor="@color/dark_black"/>
-
-            <Button
-                android:id="@id/mutemic"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:scaleType="center"
-                android:text="test8"
-                android:textColor="@color/dark_black"/>
-
-            <Button
-                android:id="@id/mutemic"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:scaleType="center"
-                android:text="test9预留"
-                android:textColor="@color/dark_black"/>
 
         </io.agora.propeller.ui.AGLinearLayout>
 
